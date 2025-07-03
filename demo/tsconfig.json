@@ -1,8 +1,6 @@
 {
   "extends": "@tsconfig/svelte/tsconfig.json",
   "compilerOptions": {
-    "target": "ES2022",
-    "module": "ESNext",
     "paths": {
       "@mateothegreat/dynamic-component-engine": ["../src/index.ts"],
       "$lib": ["./src/lib"],
