@@ -31,5 +31,8 @@
     "vite-plugin-version-mark": "^0.1.4",
     "vite-tsconfig-paths": "^5.1.4",
     "vitest": "^3.2.4"
+  },
+  "dependencies": {
+    "tailwindcss": "^4.1.11"
   }
 }
