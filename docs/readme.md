@@ -18,6 +18,28 @@ npm install @mateothegreat/dynamic-component-engine svelte
 
 ### Usage
 
+First, you need to update your `index.html` to include the following importmap:
+
+```html
+<script type="importmap">
+  {
+    "imports": {
+      "svelte": "https://esm.sh/svelte@5.35.1",
+      "svelte/internal/disclose-version": "https://esm.sh/svelte@5.35.1/internal/disclose-version",
+      "svelte/internal/": "https://esm.sh/svelte@5.35.1/internal/"
+    }
+  }
+</script>
+```
+
+> [!NOTE]
+> This is necessary to ensure that the Svelte runtime is available to the dynamic component engine.
+> See [index.html](../index.html) for a working implementation.
+
+### Example
+
+Here's an example of how to use the dynamic component engine to render a component from a remote source (in this case, a locally compiled Svelte component served by vite):
+
 ```svelte
 <script lang="ts">
   import { onDestroy, onMount } from "svelte";
