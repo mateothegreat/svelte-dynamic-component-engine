@@ -17,7 +17,13 @@ async function bundleSvelte(entry) {
     outdir: "./public",
     plugins: [
       esbuildSvelte({
-        preprocess: sveltePreprocess()
+        preprocess: sveltePreprocess(),
+        css: true,
+        compilerOptions: {
+          css: "injected",
+          preserveComments: true,
+          preserveWhitespace: true
+        }
       })
     ]
   });

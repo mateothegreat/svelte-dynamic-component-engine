@@ -8,7 +8,7 @@ A powerful, secure, and flexible runtime component compiler for Svelte 5+ applic
 - **Type Safety**: Comprehensive TypeScript support with detailed interfaces and type definitions.
 - **Svelte 5 Ready**: Full support for Svelte 5 runes and the latest features.
 
-## 🚀  Quick Start
+## 🚀 Quick Start
 
 ### Installation
 
@@ -43,14 +43,20 @@ Here's an example of how to use the dynamic component engine to render a compone
 ```svelte
 <script lang="ts">
   import { onDestroy, onMount } from "svelte";
-  import { load, render, type Rendered } from "@mateothegreat/dynamic-component-engine";
+  import {
+    load,
+    render,
+    type Rendered
+  } from "@mateothegreat/dynamic-component-engine";
 
   let renderRef: HTMLDivElement;
   let component: Rendered;
 
   async function create() {
     try {
-      const source = await fetch("https://dynamic-component-engine.matthewdavis.io/entry.js").then((res) => res.text());
+      const source = await fetch(
+        "https://dynamic-component-engine.matthewdavis.io/entry.js"
+      ).then((res) => res.text());
       const fn = await load(source);
       component = await render(fn, {
         componentSource: source,
@@ -122,7 +128,7 @@ node build.js
 Should show something like this in your terminal:
 
 ```shell
-$ node build.js                 
+$ node build.js
 
   public/entry.js  1.2kb
 
@@ -152,7 +158,6 @@ function Simple($$anchor) {
   let testState = $.state(0);
   var fragment = root();
   var div = $.first_child(fragment);
-  div.textContent = "I'm but a simple component";
   var button = $.sibling(div, 2);
   button.__click = [on_click, testState];
   var text = $.child(button, true);

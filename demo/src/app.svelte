@@ -1,25 +1,30 @@
 <script lang="ts">
+  import { Button } from "$components/button";
   import { emojis, load, Logger, LogLevel, render, type Rendered } from "@mateothegreat/dynamic-component-engine";
   import { onDestroy, onMount } from "svelte";
   import type { SimpleProps } from "./components";
 
   let renderRef: HTMLDivElement;
   let sourceRef: HTMLPreElement;
-  let isLoading = $state(false);
+  let isLoading = $state(true);
   let component: Rendered<SimpleProps>;
 
   const logger = new Logger("app.svelte", { level: LogLevel.DEBUG });
 
   const recreate = (): void => {
+    isLoading = true;
     logger.info("recreateComponent", `${emojis.Trash} destroying component (${component.name})`);
     component.destroy();
-    create();
+    setTimeout(() => {
+      create();
+      isLoading = false;
+    }, 500);
   };
 
   const create = async (): Promise<void> => {
+    isLoading = true;
     try {
       const source = await fetch("/entry.js").then((res) => res.text());
-      sourceRef.textContent = source;
       logger.info("createComponent", `⬇️ downloaded component source code (${source.length} bytes)`);
 
       const fn = await load(source);
@@ -43,6 +48,7 @@
       console.log(component.props.name);
 
       logger.info("createComponent", `${emojis.Checkmark} mounted dynamic component (${component.name}) at ${renderRef.id}`);
+      isLoading = false;
     } catch (error) {
       logger.error("createComponent", `${emojis.Error} failed to mount component`, error);
     }
@@ -58,166 +64,46 @@
   });
 </script>
 
-<svelte:head>
-  <title>Dynamic Svelte Component Renderer</title>
-</svelte:head>
-
-<main class="container">
-  <header class="header">
-    <h1>🚀 Dynamic Component Host</h1>
-    <p>This component was compiled and rendered at runtime in the browser using Svelte 5.</p>
-    <div class="controls">
-      <button onclick={recreate} disabled={isLoading}>
+<main class="font-system container mx-auto flex flex-col gap-4 p-6">
+  <header class="mb-8">
+    <h1 class="mb-2 text-[#bbc2cc]">🚀 Dynamic Component Host</h1>
+    <p class="mb-4 text-[#6b7280]">This component was compiled and rendered at runtime in the browser using Svelte 5.</p>
+    <div class="my-4">
+      <Button onclick={recreate} disabled={isLoading}>
         {isLoading ? "Creating..." : "Recreate Component"}
-      </button>
+      </Button>
     </div>
   </header>
 
-  <section class="component-section">
-    <h2>Dynamic Component Rendered:</h2>
-    <div bind:this={renderRef} id="dynamic-component-container" class="component-container" class:loading={isLoading}>
+  <section class="flex flex-col gap-1">
+    <div class="text-primary text-lg font-medium">Dynamic Component Rendered</div>
+    <div
+      bind:this={renderRef}
+      id="dynamic-component-container"
+      class="fade-in relative flex h-full min-h-[200px] w-full items-center justify-center rounded-lg border-[6px] border-dashed border-[#8158b3] bg-[#101112] p-4 transition-all duration-300 ease-in-out
+             {isLoading ? 'border-[#9ca3af] bg-black/50' : ''}">
       {#if isLoading}
-        <div class="loading-indicator">
-          <div class="spinner"></div>
+        <div class="fade-in gap-3 text-sm text-[#6b7280]">
+          <div class="h-5 w-5 animate-spin rounded-full border-2 border-[#e5e7eb] border-t-[#3b82f6]"></div>
           <span>Compiling component...</span>
         </div>
       {/if}
     </div>
   </section>
 
-  <section class="component-section">
-    <h2>Dynamic Component Source Code:</h2>
-    <div class="component-container" class:loading={isLoading}>
-      <pre bind:this={sourceRef} class="source-code"></pre>
+  <section class="flex flex-col gap-1">
+    <div class="text-primary text-lg font-medium">Dynamic Component Source Code</div>
+    <div
+      class="relative min-h-[200px] rounded-lg border-[6px] border-dashed border-[#8158b3] bg-[#101112] p-4 transition-all duration-300 ease-in-out
+                {isLoading ? 'border-[#9ca3af] bg-black/50' : ''}">
       {#if isLoading}
-        <div class="loading-indicator">
-          <div class="spinner"></div>
+        <div class="flex items-center justify-center gap-3 text-sm text-[#6b7280]">
+          <div class="h-5 w-5 animate-spin rounded-full border-2 border-[#e5e7eb] border-t-[#3b82f6]"></div>
           <span>Loading component source code...</span>
         </div>
+      {:else}
+        <pre bind:this={sourceRef} class="overflow-x-auto whitespace-pre-wrap break-words text-left font-mono text-[11px]"></pre>
       {/if}
     </div>
   </section>
 </main>
-
-<style>
-  .container {
-    margin: 0 auto;
-    padding: 24px;
-    font-family:
-      system-ui,
-      -apple-system,
-      sans-serif;
-  }
-
-  .header {
-    margin-bottom: 32px;
-  }
-
-  .header h1 {
-    color: #bbc2cc;
-    margin-bottom: 8px;
-  }
-
-  .header p {
-    color: #6b7280;
-    margin-bottom: 16px;
-  }
-
-  .controls {
-    margin: 16px 0;
-  }
-
-  .controls button {
-    background: #3b82f6;
-    color: white;
-    border: none;
-    padding: 8px 16px;
-    border-radius: 6px;
-    cursor: pointer;
-    font-size: 14px;
-    transition: all 0.2s;
-  }
-
-  .controls button:hover:not(:disabled) {
-    background: #2563eb;
-    transform: translateY(-1px);
-  }
-
-  .controls button:disabled {
-    background: #9ca3af;
-    cursor: not-allowed;
-    transform: none;
-  }
-
-  .component-section h2 {
-    color: #f9fafb;
-    margin-bottom: 16px;
-  }
-
-  .component-container {
-    min-height: 200px;
-    border: 6px dashed #8158b3;
-    border-radius: 8px;
-    padding: 16px;
-    background: #101112;
-    position: relative;
-    transition: all 0.3s ease;
-  }
-
-  .component-container.loading {
-    background: #f3f4f6;
-    border-color: #9ca3af;
-  }
-
-  .loading-indicator {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 12px;
-    color: #6b7280;
-    font-size: 14px;
-  }
-
-  .spinner {
-    width: 20px;
-    height: 20px;
-    border: 2px solid #e5e7eb;
-    border-top: 2px solid #3b82f6;
-    border-radius: 50%;
-    animation: spin 1s linear infinite;
-  }
-
-  @keyframes spin {
-    0% {
-      transform: rotate(0deg);
-    }
-    100% {
-      transform: rotate(360deg);
-    }
-  }
-
-  /* Global styles for dynamic components */
-  :global(.dynamic-wrapper) {
-    animation: fadeIn 0.3s ease-out;
-  }
-
-  @keyframes fadeIn {
-    from {
-      opacity: 0;
-      transform: translateY(8px);
-    }
-    to {
-      opacity: 1;
-      transform: translateY(0);
-    }
-  }
-
-  .source-code {
-    text-align: left;
-    font-size: 11px;
-    font-family: monospace;
-    white-space: pre-wrap;
-    word-wrap: break-word;
-    overflow-x: auto;
-  }
-</style>

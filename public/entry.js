@@ -38,6 +38,4 @@ var factory = (target, props) => {
     }
   };
 };
-export {
-  factory as default
-};
+export { factory as default };

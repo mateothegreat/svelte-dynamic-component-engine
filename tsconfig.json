@@ -17,5 +17,5 @@
     "moduleResolution": "bundler",
     "allowArbitraryExtensions": true
   },
-  "include": ["./src/**/*"]
+  "include": ["./src/**/*", "demo/src/lib/utils.ts"]
 }

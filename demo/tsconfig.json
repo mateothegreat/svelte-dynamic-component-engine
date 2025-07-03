@@ -4,8 +4,10 @@
     "target": "ES2022",
     "module": "ESNext",
     "paths": {
-      "@mateothegreat/dynamic-component-engine": ["../src/index.ts"]
+      "@mateothegreat/dynamic-component-engine": ["../src/index.ts"],
+      "$lib/*": ["./src/lib/*"],
+      "$components/*": ["./src/lib/components/ui/*"]
     }
   },
-  "include": ["src/**/*.ts", "src/**/*.js", "src/**/*.svelte"]
+  "include": ["./src/**/*.ts", "./src/**/*.js", "./src/**/*.svelte"]
 }

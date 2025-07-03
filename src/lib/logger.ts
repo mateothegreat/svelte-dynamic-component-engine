@@ -240,7 +240,10 @@ export class Logger {
    * @param obj - Object to inspect and log
    * @param options - Inspection options
    */
-  inspect(obj: unknown, options: { colorize?: boolean; compact?: boolean; maxDepth?: number } = {}): void {
+  inspect(
+    obj: unknown,
+    options: { colorize?: boolean; compact?: boolean; maxDepth?: number } = {}
+  ): void {
     const inspectOptions = {
       colorize: options.colorize ?? this.config.colorize ?? true,
       compact: options.compact ?? this.config.compact ?? false,
@@ -252,7 +255,13 @@ export class Logger {
     const inspected = this._inspect(obj, inspectOptions);
 
     if (inspectOptions.colorize && this.config.colorize) {
-      console.log(`%c🔍 %c[${this.context}]%c ${this._getTimestamp()}%c\n${inspected}`, this.colors.debug, this.colors.context, this.colors.timestamp, "color: inherit;");
+      console.log(
+        `%c🔍 %c[${this.context}]%c ${this._getTimestamp()}%c\n${inspected}`,
+        this.colors.debug,
+        this.colors.context,
+        this.colors.timestamp,
+        "color: inherit;"
+      );
     } else {
       console.log(`🔍 [${this.context}] ${this._getTimestamp()}\n${inspected}`);
     }
@@ -440,14 +449,25 @@ export class Logger {
   private getError(e: DOMException): { string: string; styles: string[] } {
     return {
       string: `%cException:\nname: %c${e.name}%c\nmessage: %c${flatten(e.message)}%c\nstack:\n%c${e.stack}%c`,
-      styles: [this.colors.dim, this.colors.error, this.colors.dim, this.colors.warn, this.colors.dim, this.colors.trace]
+      styles: [
+        this.colors.dim,
+        this.colors.error,
+        this.colors.dim,
+        this.colors.warn,
+        this.colors.dim,
+        this.colors.trace
+      ]
     };
   }
 
   /**
    * Browser-compatible object inspection similar to Node.js util.inspect.
    */
-  private _inspect(obj: unknown, options: { colorize: boolean; compact: boolean; maxDepth: number }, currentDepth: number = 0): string {
+  private _inspect(
+    obj: unknown,
+    options: { colorize: boolean; compact: boolean; maxDepth: number },
+    currentDepth: number = 0
+  ): string {
     if (currentDepth >= options.maxDepth) {
       return options.colorize ? `%c[Object]` : "[Object]";
     }
@@ -476,7 +496,9 @@ export class Logger {
 
       case "function":
         const funcName = (obj as Function).constructor?.name || "Function";
-        return options.colorize ? `%c[${funcName}: ${(obj as Function).name || "anonymous"}]` : `[${funcName}: ${(obj as Function).name || "anonymous"}]`;
+        return options.colorize
+          ? `%c[${funcName}: ${(obj as Function).name || "anonymous"}]`
+          : `[${funcName}: ${(obj as Function).name || "anonymous"}]`;
 
       case "symbol":
         return options.colorize ? `%c${obj.toString()}` : obj.toString();
@@ -496,7 +518,11 @@ export class Logger {
   /**
    * Inspects arrays with proper formatting.
    */
-  private _inspectArray(arr: unknown[], options: { colorize: boolean; compact: boolean; maxDepth: number }, currentDepth: number): string {
+  private _inspectArray(
+    arr: unknown[],
+    options: { colorize: boolean; compact: boolean; maxDepth: number },
+    currentDepth: number
+  ): string {
     if (arr.length === 0) {
       return "[]";
     }
@@ -504,7 +530,11 @@ export class Logger {
     const items = arr.slice(0, 10).map((item) => this._inspect(item, options, currentDepth + 1));
 
     if (arr.length > 10) {
-      items.push(options.colorize ? `%c... ${arr.length - 10} more items` : `... ${arr.length - 10} more items`);
+      items.push(
+        options.colorize
+          ? `%c... ${arr.length - 10} more items`
+          : `... ${arr.length - 10} more items`
+      );
     }
 
     if (options.compact) {
@@ -519,7 +549,11 @@ export class Logger {
   /**
    * Inspects objects with proper formatting.
    */
-  private _inspectObject(obj: Record<string, unknown>, options: { colorize: boolean; compact: boolean; maxDepth: number }, currentDepth: number): string {
+  private _inspectObject(
+    obj: Record<string, unknown>,
+    options: { colorize: boolean; compact: boolean; maxDepth: number },
+    currentDepth: number
+  ): string {
     const keys = Object.keys(obj);
 
     if (keys.length === 0) {
@@ -533,7 +567,11 @@ export class Logger {
     });
 
     if (keys.length > 10) {
-      pairs.push(options.colorize ? `%c... ${keys.length - 10} more properties` : `... ${keys.length - 10} more properties`);
+      pairs.push(
+        options.colorize
+          ? `%c... ${keys.length - 10} more properties`
+          : `... ${keys.length - 10} more properties`
+      );
     }
 
     if (options.compact) {
@@ -618,12 +656,18 @@ export function setGlobalLogLevel(level: LogLevel): void {
  * Quick logging functions for convenience.
  */
 export const log = {
-  error: (label: string, message: string, ...data: unknown[]) => logger.error(label, message, ...data),
-  warn: (label: string, message: string, ...data: unknown[]) => logger.warn(label, message, ...data),
-  info: (label: string, message: string, ...data: unknown[]) => logger.info(label, message, ...data),
-  debug: (label: string, message: string, ...data: unknown[]) => logger.debug(label, message, ...data),
-  trace: (label: string, message: string, ...data: unknown[]) => logger.trace(label, message, ...data),
-  inspect: (obj: unknown, options?: Parameters<Logger["inspect"]>[1]) => logger.inspect(obj, options)
+  error: (label: string, message: string, ...data: unknown[]) =>
+    logger.error(label, message, ...data),
+  warn: (label: string, message: string, ...data: unknown[]) =>
+    logger.warn(label, message, ...data),
+  info: (label: string, message: string, ...data: unknown[]) =>
+    logger.info(label, message, ...data),
+  debug: (label: string, message: string, ...data: unknown[]) =>
+    logger.debug(label, message, ...data),
+  trace: (label: string, message: string, ...data: unknown[]) =>
+    logger.trace(label, message, ...data),
+  inspect: (obj: unknown, options?: Parameters<Logger["inspect"]>[1]) =>
+    logger.inspect(obj, options)
 };
 
 const flatten = (message: string): string => {

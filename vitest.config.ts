@@ -1,19 +1,13 @@
-import { defineConfig } from 'vitest/config';
+import { defineConfig } from "vitest/config";
 
 export default defineConfig({
   test: {
     globals: true,
-    environment: 'jsdom',
+    environment: "jsdom",
     coverage: {
-      provider: 'v8',
-      reporter: ['json'],
-      exclude: [
-        'node_modules/',
-        'src/test-setup.ts',
-        '**/*.test.ts',
-        '**/*.test.js',
-        'dist/',
-      ],
-    },
-  },
-}); 
+      provider: "v8",
+      reporter: ["json"],
+      exclude: ["node_modules/", "src/test-setup.ts", "**/*.test.ts", "**/*.test.js", "dist/"]
+    }
+  }
+});

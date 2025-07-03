@@ -64,7 +64,10 @@ export const load = async (source: string): Promise<Function> => {
  *
  * @returns {Promise<Rendered<TProps>>} The rendered component.
  */
-export const render = async <TProps>(fn: Function, options: RenderOptions<TProps>): Promise<Rendered<TProps>> => {
+export const render = async <TProps>(
+  fn: Function,
+  options: RenderOptions<TProps>
+): Promise<Rendered<TProps>> => {
   const component = fn(options.target, options.props);
   return {
     name: component.name,

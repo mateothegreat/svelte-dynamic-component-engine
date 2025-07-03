@@ -41,7 +41,9 @@ export default defineConfig({
   ],
   resolve: {
     alias: {
-      "@mateothegreat/dynamic-component-engine": path.resolve(__dirname, "../src/index.ts")
+      "@mateothegreat/dynamic-component-engine": path.resolve(__dirname, "../src/index.ts"),
+      $lib: path.resolve(__dirname, "./src/lib"),
+      $components: path.resolve(__dirname, "./src/lib/components/ui")
     }
   }
 });
