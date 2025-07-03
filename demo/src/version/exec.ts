@@ -1,6 +1,6 @@
 import { spawnSync } from "node:child_process";
 
-export const run = (
+export const exec = (
   command: string
 ): {
   output: string;

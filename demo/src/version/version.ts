@@ -1,3 +1,5 @@
+import fs from "node:fs";
+import type { VersionConfig } from "../../../src/vite-plugin-version";
 import { git } from "./git";
 import type { Version } from "./types";
 
@@ -27,18 +29,19 @@ export const ago = (date: Date, locale = "en"): string => {
   return rtf.format(0, "second");
 };
 
-export const setVersion = (): Version => {
-  return {
-    tag: git.tag(),
-    commit: {
-      long: git.commit.long(),
-      short: git.commit.short()
-    },
-    dirty: git.dirty(),
-    branch: git.branch(),
-    date: {
-      actual: new Date(git.date()),
-      human: ago(new Date(git.date()))
+export const setVersion = (config?: VersionConfig): Version => {
+  for (const location of config?.locations ?? ["git-tag", "package.json"]) {
+    if (location === "git-tag") {
+      return {
+        location: "git-tag",
+        tag: git.tag()
+      };
+    } else if (location === "package.json") {
+      const pkg = JSON.parse(fs.readFileSync("package.json", "utf8"));
+      return {
+        location: "package.json",
+        tag: pkg.version
+      };
     }
-  };
+  }
 };

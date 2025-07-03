@@ -9,7 +9,9 @@ import { versionPlugin } from "../src/vite-plugin-version";
 export default defineConfig({
   logLevel: "info",
   plugins: [
-    versionPlugin({}),
+    versionPlugin({
+      locations: ["package.json"]
+    }),
     tsconfigPaths(),
     svelte(),
     svelteInspector({

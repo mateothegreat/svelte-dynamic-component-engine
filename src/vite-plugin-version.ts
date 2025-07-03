@@ -1,8 +1,24 @@
-import type { PluginOption } from "vite";
 import { setVersion } from "../demo/src/version/version";
+
+export type VersionLocation =
+  | "git-tag"
+  | "git-commit"
+  | "git-branch"
+  | "git-dirty"
+  | "git-date"
+  | "package.json";
 
 export interface VersionConfig {
   debug?: boolean;
+  /**
+   * The locations to check for version information.
+   *
+   * The order is important, the first location that is found will be used
+   * otherwise the next (fallback) location will be used.
+   *
+   * @default ["git-tag", "package.json"]
+   */
+  locations?: VersionLocation[];
 }
 
 /**
@@ -10,7 +26,7 @@ export interface VersionConfig {
  *
  * @param {VersionConfig} pluginConfig The plugin configuration.
  *
- * @returns {PluginOption} The plugin option.
+ * @returns {any} The plugin option.
  *
  * @example
  * ```ts
@@ -21,14 +37,14 @@ export interface VersionConfig {
  * });
  * ```
  */
-export const versionPlugin = (pluginConfig: VersionConfig): PluginOption => {
-  const versionData = setVersion();
+export const versionPlugin = (pluginConfig?: VersionConfig): any => {
+  const versionData = setVersion(pluginConfig);
   const versionString = JSON.stringify(versionData);
 
   return {
     name: "version-plugin",
-    config(config, env) {
-      if (pluginConfig.debug) {
+    config(config: any) {
+      if (pluginConfig?.debug) {
         console.log("versionPlugin.config() versionData:", versionData);
       }
 
@@ -42,7 +58,7 @@ export const versionPlugin = (pluginConfig: VersionConfig): PluginOption => {
       // For import.meta.env.VITE_VERSION access:
       process.env.VITE_VERSION = versionString;
 
-      if (pluginConfig.debug) {
+      if (pluginConfig?.debug) {
         console.log("versionPlugin.config() config.define:", config.define);
       }
 

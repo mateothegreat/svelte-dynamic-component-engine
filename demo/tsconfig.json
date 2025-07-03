@@ -24,6 +24,6 @@
       "$components/*": ["./src/lib/components/ui/*"]
     }
   },
-  "include": ["./src/**/*.ts", "./src/**/*.js", "./src/**/*.svelte"],
+  "include": ["./src/**/*.ts", "./src/**/*.js", "./src/**/*.svelte", "shared-components/simple.svelte", "shared-components/simple/entry.ts", "shared-components/entry.ts"],
   "exclude": ["src/lib/components/ui"]
 }

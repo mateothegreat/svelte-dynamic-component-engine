@@ -1,14 +1,14 @@
 <script lang="ts">
-  import { Badge } from "$lib/components/ui/badge";
   import { Button } from "$lib/components/ui/button";
   import { Toaster } from "$lib/components/ui/sonner";
   import Window from "$lib/components/window.svelte";
-  import { BookHeart, BugPlay, Code, Github, HardDriveDownload, RefreshCcwDot, TerminalIcon } from "@lucide/svelte";
+  import { BookHeart, Code, Github, HardDriveDownload, RefreshCcwDot, TerminalIcon } from "@lucide/svelte";
   import { emojis, load, Logger, LogLevel, render, type Rendered } from "@mateothegreat/dynamic-component-engine";
   import { onDestroy, onMount } from "svelte";
   import { toast } from "svelte-sonner";
   import type { SimpleProps } from "./components";
-  import { UseClipboard } from "./extras/hooks/use-clipboard.svelte";
+  import { clipboard } from "./extras/hooks/clipboard";
+  import { copyButton } from "./extras/hooks/copy-to-clipboard.svelte";
   import { getVersion } from "./version/browser";
 
   let renderRef: HTMLDivElement | undefined = $state(undefined);
@@ -24,10 +24,8 @@
     isLoading = true;
     logger.info("recreateComponent", `${emojis.Trash} destroying component (${component.name})`);
     component.destroy();
-    setTimeout(() => {
-      create();
-      isLoading = false;
-    }, 500);
+    create();
+    isLoading = false;
   };
 
   const create = async (): Promise<void> => {
@@ -51,7 +49,7 @@
         target: renderRef!,
         props: {
           /* Type safety! */
-          name: "I'm but a simple component"
+          name: "I am but a simple component"
         }
       });
 
@@ -76,8 +74,6 @@
       component.destroy();
     }
   });
-
-  const clipboard = new UseClipboard();
 </script>
 
 {#snippet loading()}
@@ -90,10 +86,13 @@
 {#snippet pkg()}
   {@const version = getVersion()}
   <Button
-    onclick={() => {
-      clipboard.copy(`npm install @mateothegreat/svelte-dynamic-component-engine@${version.tag}`);
-      toast.success(`npm install @mateothegreat/svelte-dynamic-component-engine@${version.tag} 👏 copied to clipboard`);
-    }}
+    {@attach clipboard({
+      text: `npm install @mateothegreat/svelte-dynamic-component-engine@${version.tag}`,
+      onStatusChange: (status) => console.log(status),
+      onSuccess: () => {
+        toast.success(`npm install @mateothegreat/svelte-dynamic-component-engine@${version.tag} copied to clipboard! 📋`);
+      }
+    })}
     variant="default"
     size="sm"
     class="w-fit bg-zinc-900/80 border-slate-700 border hover:bg-black hover:border-slate-700">
@@ -104,13 +103,7 @@
 
 <div class="flex items-center gap-2 border-b-3 border-slate-800/50 bg-black/50 p-4 shadow-lg shadow-black/30">
   <header class="flex flex-1 flex-col gap-0.5">
-    <div class="flex items-center gap-2">
-      <div class="font-title text-gradient-animated">Svelte Dynamic Component Engine</div>
-      <Badge class="text-xs font-semibold bg-black text-fuchsia-400 border-slate-500/50 -mt-6 ml-1">
-        <BugPlay />
-        Live Demo
-      </Badge>
-    </div>
+    <div class="font-title text-gradient-animated">Svelte Dynamic Component Engine</div>
     <p class="text-sm text-slate-500 font-subtitle w-1/2">This demo shows how to use the Svelte Dynamic Component Engine to render a component at runtime in the browser using Svelte 5.</p>
   </header>
   <a href="https://github.com/mateothegreat/svelte-dynamic-component-engine" class="text-slate-400 hover:text-green-500" target="_blank">
@@ -155,9 +148,26 @@
     <p class="text-green-400">{loadTime.toFixed(2)}ms</p>
   </div>
   <section class="flex flex-col gap-2">
-    <div class="text-primary flex items-center gap-2 text-lg font-medium">
-      <Code class="h-6 w-6 text-gray-500" />
-      Source Code
+    <div class="text-primary flex items-center justify-between gap-2 text-lg font-medium">
+      <div class="text-primary flex items-center gap-2 text-lg font-medium">
+        <Code class="h-6 w-6 text-gray-500" />
+        Source Code
+      </div>
+      <Button
+        {@attach copyButton({
+          getText: () => sourceText,
+          successMessage: "Source code copied to clipboard! 📋",
+          classes: {
+            success: "bg-green-500 border-green-400 text-white",
+            copying: "opacity-50 cursor-wait"
+          }
+        })}
+        variant="outline"
+        size="sm"
+        disabled={isLoading || !sourceText}
+        class="text-xs">
+        Copy Source
+      </Button>
     </div>
     <div class="relative min-h-[200px] rounded-lg border-4 border-dashed border-slate-800 bg-black p-8 transition-all duration-300 ease-in-out">
       {#if isLoading}

@@ -86,7 +86,30 @@ Here's an example of how to use the dynamic component engine to render a compone
 
 You must first compile your Svelte component(s) down to a string and serve it to the client (http endpoint, websockets, etc.) then you can use the `load` and `render` functions to dynamically render the component(s) in the browser.
 
-### `esbuild-svelte`
+### Using the [`compile-components`](../demo/bin/compile-components) script
+
+I've provided an easy button to compile your components down to a single file that can be served to the client.
+
+Simply run `npm run compile` and it will compile all the components in the `shared-components` directory down to a single files that can be served to the client.
+Your output will look like this:
+
+```sh
+➜ npm run compile            
+
+> demo@0.0.1 compile
+> node bin/compile-components
+
+Discovering components via ./shared-components/**/entry.ts
++ Discovered component entrypoint: shared-components/simple/entry.ts
+
+Compiling (1) component...
+
+  public/entry.js  2.7kb
+
+⚡ Done in 191ms
+```
+
+### Manually using `esbuild-svelte`
 
 ```typescript
 import esbuild from "esbuild";
@@ -116,28 +139,12 @@ async function bundleSvelte(entry) {
   return build.outputFiles;
 }
 
-bundleSvelte(["./src/components/entry.ts"]);
-```
-
-Now you're ready to compile your svelte component(s) down to an esm module:
-
-```bash
-node build.js
-```
-
-Should show something like this in your terminal:
-
-```shell
-$ node build.js
-
-  public/entry.js  1.2kb
-
-⚡ Done in 156ms
+bundleSvelte(["./shared-components/simple/entry.ts"]);
 ```
 
 ### Output
 
-After running `node build.js` the output will be a single file in the `public` directory and will look like this:
+After running `npm run compile` the output will be a single file in the `public` directory and will look like this:
 
 ```js
 const compiledComponentSource = `

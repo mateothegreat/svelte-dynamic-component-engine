@@ -1,7 +1,6 @@
 import type { VersionConfig } from "../../../src/vite-plugin-version";
 import type { Version } from "./types";
 
-// Declare the global constant that will be replaced at build time
 declare const __VERSION__: Version | undefined;
 
 export const getVersion = (config?: VersionConfig): Version => {
@@ -9,7 +8,6 @@ export const getVersion = (config?: VersionConfig): Version => {
     console.log("getVersion()", "checking available version sources");
   }
 
-  // Try build-time constant first (production builds)
   if (typeof __VERSION__ !== "undefined") {
     if (config?.debug) {
       console.log("getVersion()", "Found __VERSION__ from build-time replacement:", __VERSION__);
@@ -17,7 +15,6 @@ export const getVersion = (config?: VersionConfig): Version => {
     return __VERSION__;
   }
 
-  // Try import.meta.env (available in dev and production)
   if (import.meta.env.VITE_VERSION) {
     try {
       const parsed = JSON.parse(import.meta.env.VITE_VERSION as string);
@@ -35,6 +32,7 @@ export const getVersion = (config?: VersionConfig): Version => {
     console.error("getVersion()", "no version information available");
   }
   return {
+    location: null,
     tag: "unknown",
     commit: {
       long: "unknown",
