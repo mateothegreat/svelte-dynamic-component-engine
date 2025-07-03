@@ -1,7 +1,24 @@
-import { vitePreprocess } from '@sveltejs/vite-plugin-svelte'
+import { svelte } from "@sveltejs/vite-plugin-svelte";
+import { defineConfig } from "vite";
 
-export default {
-  // Consult https://svelte.dev/docs#compile-time-svelte-preprocess
-  // for more information about preprocessors
-  preprocess: vitePreprocess(),
-}
+export default defineConfig({
+  css: {
+    preprocessorOptions: {
+      scss: {
+        api: "modern"
+      }
+    }
+  },
+  plugins: [
+    svelte({
+      // exclude: /\.wc\.svelte$/,
+      hot: true
+    }),
+    svelte({
+      compilerOptions: {
+        customElement: true
+      },
+      typescript: {}
+    })
+  ]
+});

@@ -1,47 +1,172 @@
-# Svelte + TS + Vite
+# Dynamic Component Engine
 
-This template should help get you started developing with Svelte and TypeScript in Vite.
+A powerful, secure, and flexible runtime component compiler for Svelte 5+ applications.
 
-## Recommended IDE Setup
+## ✨ Features
 
-[VS Code](https://code.visualstudio.com/) + [Svelte](https://marketplace.visualstudio.com/items?itemName=svelte.svelte-vscode).
+- **Runtime Component Compilation**: Transform Svelte component strings into fully functional components on the fly.
+- **Type Safety**: Comprehensive TypeScript support with detailed interfaces and type definitions.
+- **Svelte 5 Ready**: Full support for Svelte 5 runes and the latest features.
 
-## Need an official Svelte framework?
+## 🚀  Quick Start
 
-Check out [SvelteKit](https://github.com/sveltejs/kit#readme), which is also powered by Vite. Deploy anywhere with its serverless-first approach and adapt to various platforms, with out of the box support for TypeScript, SCSS, and Less, and easily-added support for mdsvex, GraphQL, PostCSS, Tailwind CSS, and more.
+### Installation
 
-## Technical considerations
-
-**Why use this over SvelteKit?**
-
-- It brings its own routing solution which might not be preferable for some users.
-- It is first and foremost a framework that just happens to use Vite under the hood, not a Vite app.
-
-This template contains as little as possible to get started with Vite + TypeScript + Svelte, while taking into account the developer experience with regards to HMR and intellisense. It demonstrates capabilities on par with the other `create-vite` templates and is a good starting point for beginners dipping their toes into a Vite + Svelte project.
-
-Should you later need the extended capabilities and extensibility provided by SvelteKit, the template has been structured similarly to SvelteKit so that it is easy to migrate.
-
-**Why `global.d.ts` instead of `compilerOptions.types` inside `jsconfig.json` or `tsconfig.json`?**
-
-Setting `compilerOptions.types` shuts out all other types not explicitly listed in the configuration. Using triple-slash references keeps the default TypeScript setting of accepting type information from the entire workspace, while also adding `svelte` and `vite/client` type information.
-
-**Why include `.vscode/extensions.json`?**
-
-Other templates indirectly recommend extensions via the README, but this file allows VS Code to prompt the user to install the recommended extension upon opening the project.
-
-**Why enable `allowJs` in the TS template?**
-
-While `allowJs: false` would indeed prevent the use of `.js` files in the project, it does not prevent the use of JavaScript syntax in `.svelte` files. In addition, it would force `checkJs: false`, bringing the worst of both worlds: not being able to guarantee the entire codebase is TypeScript, and also having worse typechecking for the existing JavaScript. In addition, there are valid use cases in which a mixed codebase may be relevant.
-
-**Why is HMR not preserving my local component state?**
-
-HMR state preservation comes with a number of gotchas! It has been disabled by default in both `svelte-hmr` and `@sveltejs/vite-plugin-svelte` due to its often surprising behavior. You can read the details [here](https://github.com/rixo/svelte-hmr#svelte-hmr).
-
-If you have state that's important to retain within a component, consider creating an external store which would not be replaced by HMR.
-
-```ts
-// store.ts
-// An extremely simple external store
-import { writable } from 'svelte/store'
-export default writable(0)
+```bash
+npm install @mateothegreat/dynamic-component-engine svelte
 ```
+
+### Usage
+
+```svelte
+<script lang="ts">
+  import { onDestroy, onMount } from "svelte";
+  import { load, render, type Rendered } from "@mateothegreat/dynamic-component-engine";
+
+  let renderRef: HTMLDivElement;
+  let component: Rendered;
+
+  async function create() {
+    try {
+      const source = await fetch("https://dynamic-component-engine.matthewdavis.io/entry.js").then((res) => res.text());
+      const fn = await load(source);
+      component = await render(fn, {
+        componentSource: source,
+        target: renderRef,
+        props: {
+          foo: "bar"
+        }
+      });
+    } catch (error) {
+      console.error(error);
+    }
+  }
+
+  onMount(async () => {
+    create();
+  });
+
+  onDestroy(() => {
+    component.destroy();
+  });
+</script>
+
+<div bind:this={renderRef}></div>
+```
+
+## 🔨 Compiling a Svelte Component
+
+You must first compile your Svelte component(s) down to a string and serve it to the client (http endpoint, websockets, etc.) then you can use the `load` and `render` functions to dynamically render the component(s) in the browser.
+
+### `esbuild-svelte`
+
+```typescript
+import esbuild from "esbuild";
+import esbuildSvelte from "esbuild-svelte";
+import { sveltePreprocess } from "svelte-preprocess";
+
+async function bundleSvelte(entry) {
+  const build = await esbuild.build({
+    logLevel: "debug",
+    entryPoints: Array.isArray(entry) ? entry : [entry],
+    target: "esnext",
+    format: "esm",
+    splitting: false,
+    packages: "external",
+    banner: {
+      js: "// I'm compiled from entry.ts which imports simple.svelte using esbuild-svelte."
+    },
+    bundle: true,
+    outdir: "./public",
+    plugins: [
+      esbuildSvelte({
+        preprocess: sveltePreprocess()
+      })
+    ]
+  });
+
+  return build.outputFiles;
+}
+
+bundleSvelte(["./src/components/entry.ts"]);
+```
+
+Now you're ready to compile your svelte component(s) down to an esm module:
+
+```bash
+node build.js
+```
+
+Should show something like this in your terminal:
+
+```shell
+$ node build.js                 
+
+  public/entry.js  1.2kb
+
+⚡ Done in 156ms
+```
+
+### Output
+
+After running `node build.js` the output will be a single file in the `public` directory and will look like this:
+
+```js
+const compiledComponentSource = `
+// I'm compiled from entry.ts which imports simple.svelte using esbuild-svelte.
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+
+// src/components/entry.ts
+import { mount, unmount } from "svelte";
+
+// src/components/simple.svelte
+import "svelte/internal/disclose-version";
+import * as $ from "svelte/internal/client";
+var on_click = /* @__PURE__ */ __name((_, testState) => $.update(testState), "on_click");
+var root = $.from_html(`<div></div> <button> </button>`, 1);
+function Simple($$anchor) {
+  let name = "I'm but a simple component";
+  let testState = $.state(0);
+  var fragment = root();
+  var div = $.first_child(fragment);
+  div.textContent = "I'm but a simple component";
+  var button = $.sibling(div, 2);
+  button.__click = [on_click, testState];
+  var text = $.child(button, true);
+  $.reset(button);
+  $.template_effect(() => $.set_text(text, $.get(testState)));
+  $.append($$anchor, fragment);
+}
+__name(Simple, "Simple");
+$.delegate(["click"]);
+
+// src/components/entry.ts
+var factory = /* @__PURE__ */ __name((target, props) => {
+  const component = mount(Simple, { target, props });
+  return {
+    component,
+    name: Simple.name,
+    destroy: /* @__PURE__ */ __name(() => {
+      console.log("entry.ts -> simple.svelte", "destroying component", component);
+      unmount(component);
+    }, "destroy")
+  };
+}, "factory");
+export {
+  factory as default
+};
+`;
+```
+
+## 🤝 Contributing
+
+We welcome contributions! Whether it's bug reports, feature requests, or pull requests, all contributions are appreciated.
+
+## 📜 License
+
+MIT License - feel free to use in personal and commercial projects.
+
+---
+
+Built with ❤️ from Texas for the Svelte community.

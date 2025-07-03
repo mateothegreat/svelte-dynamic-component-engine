@@ -1,171 +1,51 @@
 <script lang="ts">
-  import { onMount, onDestroy } from "svelte";
-  import { 
-    createDynamicComponent, 
-    createErrorDisplay, 
-    validateComponentSource,
-    type DynamicComponentResult 
-  } from "./lib/dynamic-component.js";
+  import { onDestroy, onMount } from "svelte";
+  import { load, render, type Rendered } from "./lib/dynamic-components";
+  import { emojis, Logger, LogLevel } from "./lib/logger";
 
-  // The container where the dynamic component will be mounted
-  let dynamicComponentContainer: HTMLDivElement;
-  let currentComponent: DynamicComponentResult | null = null;
+  let renderRef: HTMLDivElement;
+  let sourceRef: HTMLPreElement;
+  let component: Rendered;
   let isLoading = false;
-  let validationErrors: string[] = [];
 
-  const componentString = `
-<script>
-  let count = $state(0);
-  let message = $state("Hello from dynamic component!");
-  
-  function increment() {
-    count++;
-  }
-  
-  function reset() {
-    count = 0;
-  }
-<\/script>
+  const logger = new Logger("app.svelte", { level: LogLevel.DEBUG });
 
-<style>
-  .dynamic-wrapper {
-    padding: 20px;
-    border: 2px solid steelblue;
-    border-radius: 8px;
-    background: #f8fafc;
+  function recreate(): void {
+    logger.info("recreateComponent", `${emojis.Trash} destroying component (${component.name})`);
+    component.destroy();
+    create();
   }
-  
-  h1 { 
-    color: steelblue; 
-    font-family: sans-serif; 
-    margin: 0 0 16px 0;
-  }
-  
-  .controls {
-    display: flex;
-    gap: 8px;
-    margin-top: 16px;
-  }
-  
-  button {
-    background: steelblue;
-    color: white;
-    border: none;
-    padding: 8px 16px;
-    border-radius: 4px;
-    cursor: pointer;
-    font-size: 14px;
-    transition: background-color 0.2s;
-  }
-  
-  button:hover {
-    background: #3b82c6;
-  }
-  
-  button:active {
-    transform: translateY(1px);
-  }
-  
-  .count-display {
-    font-size: 18px;
-    font-weight: bold;
-    color: #374151;
-    margin: 12px 0;
-  }
-  
-  .message {
-    color: #6b7280;
-    font-style: italic;
-    margin-bottom: 16px;
-  }
-<\/style>
 
-<div class="dynamic-wrapper">
-  <h1>✨ Dynamic Svelte Component</h1>
-  <p class="message">{message}</p>
-  <div class="count-display">Count: {count}</div>
-  
-  <div class="controls">
-    <button onclick={increment}>
-      Increment
-    </button>
-    <button onclick={reset}>
-      Reset
-    </button>
-    <button onclick={() => message = \`Updated at \${new Date().toLocaleTimeString()}\`}>
-      Update Message
-    </button>
-  </div>
-</div>
-`;
-
-  /**
-   * Creates and mounts the dynamic component with proper error handling.
-   */
-  async function createAndMountComponent(): Promise<void> {
-    if (!dynamicComponentContainer) {
-      console.error("Container not available");
-      return;
-    }
-
-    // Clean up existing component
-    if (currentComponent) {
-      currentComponent.destroy();
-      currentComponent = null;
-    }
-
-    // Clear container
-    dynamicComponentContainer.innerHTML = "";
-    isLoading = true;
-    validationErrors = [];
-
+  async function create() {
     try {
-      // Validate component source first
-      const validation = validateComponentSource(componentString);
-      if (!validation.isValid) {
-        validationErrors = validation.errors;
-        createErrorDisplay(
-          new Error(`Validation failed:\n${validation.errors.join('\n')}`),
-          dynamicComponentContainer
-        );
-        return;
-      }
+      const source = await fetch("/entry.js").then((res) => res.text());
+      sourceRef.textContent = source;
+      logger.info("createComponent", `⬇️ downloaded component source code (${source.length} bytes)`);
 
-      // Create the dynamic component
-      currentComponent = await createDynamicComponent({
-        componentSource: componentString,
-        target: dynamicComponentContainer,
-        filename: "DynamicComponent.svelte",
-        runes: true,
+      const fn = await load(source);
+      logger.info("createComponent", `${emojis.Checkmark} instantiated component function ("${fn.name}")`);
+
+      component = await render(fn, {
+        componentSource: source,
+        target: renderRef,
+        props: {
+          name: "I'm but a simple component"
+        }
       });
-
-      console.log("✅ Dynamic component created successfully");
-      
+      logger.info("createComponent", `${emojis.Checkmark} mounted dynamic component (${component.name}) at ${renderRef.id}`);
     } catch (error) {
-      console.error("❌ Error creating dynamic component:", error);
-      createErrorDisplay(
-        error instanceof Error ? error : new Error(String(error)),
-        dynamicComponentContainer
-      );
-    } finally {
-      isLoading = false;
+      logger.error("createComponent", `${emojis.Error} failed to mount component`, error);
     }
   }
 
-  /**
-   * Recreates the component (useful for testing updates).
-   */
-  function recreateComponent(): void {
-    createAndMountComponent();
-  }
-
-  onMount(() => {
-    createAndMountComponent();
+  onMount(async () => {
+    create();
   });
 
   onDestroy(() => {
-    if (currentComponent) {
-      currentComponent.destroy();
+    if (component) {
+      logger.info("onDestroy", `${emojis.Trash} destroying dynamic component (${component.name})`);
+      component.destroy();
     }
   });
 </script>
@@ -177,39 +57,34 @@
 <main class="container">
   <header class="header">
     <h1>🚀 Dynamic Component Host</h1>
-    <p>
-      This component was compiled and rendered at runtime in the browser using Svelte 5.
-    </p>
-    
+    <p>This component was compiled and rendered at runtime in the browser using Svelte 5.</p>
     <div class="controls">
-      <button onclick={recreateComponent} disabled={isLoading}>
+      <button onclick={recreate} disabled={isLoading}>
         {isLoading ? "Creating..." : "Recreate Component"}
       </button>
     </div>
-
-    {#if validationErrors.length > 0}
-      <div class="validation-errors">
-        <h3>Validation Errors:</h3>
-        <ul>
-          {#each validationErrors as error}
-            <li>{error}</li>
-          {/each}
-        </ul>
-      </div>
-    {/if}
   </header>
 
   <section class="component-section">
-    <h2>Dynamic Component:</h2>
-    <div
-      bind:this={dynamicComponentContainer}
-      class="component-container"
-      class:loading={isLoading}
-    >
-      {#if isLoading} 
+    <h2>Dynamic Component Rendered:</h2>
+    <div bind:this={renderRef} id="dynamic-component-container" class="component-container" class:loading={isLoading}>
+      {#if isLoading}
         <div class="loading-indicator">
           <div class="spinner"></div>
           <span>Compiling component...</span>
+        </div>
+      {/if}
+    </div>
+  </section>
+
+  <section class="component-section">
+    <h2>Dynamic Component Source Code:</h2>
+    <div class="component-container" class:loading={isLoading}>
+      <pre bind:this={sourceRef} class="source-code"></pre>
+      {#if isLoading}
+        <div class="loading-indicator">
+          <div class="spinner"></div>
+          <span>Loading component source code...</span>
         </div>
       {/if}
     </div>
@@ -218,10 +93,12 @@
 
 <style>
   .container {
-    max-width: 800px;
     margin: 0 auto;
     padding: 24px;
-    font-family: system-ui, -apple-system, sans-serif;
+    font-family:
+      system-ui,
+      -apple-system,
+      sans-serif;
   }
 
   .header {
@@ -229,7 +106,7 @@
   }
 
   .header h1 {
-    color: #1f2937;
+    color: #bbc2cc;
     margin-bottom: 8px;
   }
 
@@ -284,16 +161,16 @@
   }
 
   .component-section h2 {
-    color: #374151;
+    color: #f9fafb;
     margin-bottom: 16px;
   }
 
   .component-container {
     min-height: 200px;
-    border: 2px dashed #d1d5db;
+    border: 6px dashed #8158b3;
     border-radius: 8px;
     padding: 16px;
-    background: #f9fafb;
+    background: #101112;
     position: relative;
     transition: all 0.3s ease;
   }
@@ -322,8 +199,12 @@
   }
 
   @keyframes spin {
-    0% { transform: rotate(0deg); }
-    100% { transform: rotate(360deg); }
+    0% {
+      transform: rotate(0deg);
+    }
+    100% {
+      transform: rotate(360deg);
+    }
   }
 
   /* Global styles for dynamic components */
@@ -340,5 +221,14 @@
       opacity: 1;
       transform: translateY(0);
     }
+  }
+
+  .source-code {
+    text-align: left;
+    font-size: 11px;
+    font-family: monospace;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+    overflow-x: auto;
   }
 </style>
