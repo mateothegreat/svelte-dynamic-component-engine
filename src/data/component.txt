@@ -1,0 +1,83 @@
+<script>
+  let count = $state(0);
+  let message = $state("Hello from dynamic component!");
+  
+  function increment() {
+    count++;
+  }
+  
+  function reset() {
+    count = 0;
+  }
+</script>
+
+<style>
+  .dynamic-wrapper {
+    padding: 20px;
+    border: 2px solid steelblue;
+    border-radius: 8px;
+    background: #f8fafc;
+  }
+  
+  h1 { 
+    color: steelblue; 
+    font-family: sans-serif; 
+    margin: 0 0 16px 0;
+  }
+  
+  .controls {
+    display: flex;
+    gap: 8px;
+    margin-top: 16px;
+  }
+  
+  button {
+    background: steelblue;
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: background-color 0.2s;
+  }
+  
+  button:hover {
+    background: #3b82c6;
+  }
+  
+  button:active {
+    transform: translateY(1px);
+  }
+  
+  .count-display {
+    font-size: 18px;
+    font-weight: bold;
+    color: #374151;
+    margin: 12px 0;
+  }
+  
+  .message {
+    color: #6b7280;
+    font-style: italic;
+    margin-bottom: 16px;
+  }
+</style>
+
+<div class="dynamic-wrapper">
+  <h1>✨ Dynamic Svelte Component</h1>
+  <p class="message">{message}</p>
+  <div class="count-display">Count: {count}</div>
+  
+  <div class="controls">
+    <button onclick={increment}>
+      Increment
+    </button>
+    <button onclick={reset}>
+      Reset
+    </button>
+    <button onclick={() => message = `Updated at ${new Date().toLocaleTimeString()}`}>
+      Update Message
+    </button>
+  </div>
+</div>
