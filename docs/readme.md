@@ -3,7 +3,7 @@
 A powerful, secure, and flexible runtime component compiler for Svelte 5+ applications.
 
 > [!NOTE]
-> Live demo is available at [dynamic-component-engine.matthewdavis.io](https://dynamic-component-engine.matthewdavis.io)!
+> Live demo is available at [https://dynamic-component-engine.matthewdavis.io](https://dynamic-component-engine.matthewdavis.io)!
 
 ## ✨ Features
 
