@@ -19,5 +19,5 @@
     "esModuleInterop": true,
     "skipLibCheck": true
   },
-  "include": ["./src/**/*"]
+  "include": ["./src/**/*", "demo/src/version/version.ts"]
 }

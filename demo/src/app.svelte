@@ -4,11 +4,13 @@
   import { Toaster } from "$lib/components/ui/sonner";
   import Window from "$lib/components/window.svelte";
   import { BookHeart, BugPlay, Code, Github, HardDriveDownload, RefreshCcwDot, TerminalIcon } from "@lucide/svelte";
-  import { emojis, getVersion, load, Logger, LogLevel, render, type Rendered } from "@mateothegreat/dynamic-component-engine";
+  import { emojis, load, Logger, LogLevel, render, type Rendered } from "@mateothegreat/dynamic-component-engine";
   import { onDestroy, onMount } from "svelte";
   import { toast } from "svelte-sonner";
   import type { SimpleProps } from "./components";
   import { UseClipboard } from "./extras/hooks/use-clipboard.svelte";
+  import { getVersion } from "./version/browser";
+
   let renderRef: HTMLDivElement | undefined = $state(undefined);
   let sourceRef: HTMLPreElement | undefined = $state(undefined);
   let sourceText = $state("");
@@ -67,6 +69,7 @@
   };
 
   onMount(async () => create());
+
   onDestroy(() => {
     if (component) {
       logger.info("onDestroy", `${emojis.Trash} destroying dynamic component (${component.name})`);
@@ -74,7 +77,6 @@
     }
   });
 
-  console.log(getVersion());
   const clipboard = new UseClipboard();
 </script>
 
@@ -87,28 +89,6 @@
 
 {#snippet pkg()}
   {@const version = getVersion()}
-  <!-- <a href="https://github.com/mateothegreat/svelte-dynamic-component-engine/tree/{getVersion().tag}" target="_blank" class="group">
-    <Card.Root class="w-[300px] border-2 transition-all duration-400 ease-in-out hover:border-indigo-500 hover:bg-black/50 transition-all duration-400 ease-in-out">
-      <Card.Header>
-        <Card.Description class="text-xs text-slate-500">Version</Card.Description>
-        <Card.Title class="text-lg font-semibold tabular-nums text-indigo-400 transition-all duration-400 ease-in-out group-hover:text-green-500">{version.tag}</Card.Title>
-        <Card.Action>
-          <Badge variant="outline">
-            <CalendarFold />
-            {version.date.human}
-          </Badge>
-        </Card.Action>
-      </Card.Header>
-      <Card.Content>
-        <CopyButton text={`npm install @mate/svelte-dynamic...@{version.tag}`} size="sm" variant="outline">
-          {#snippet icon()}
-            <TerminalIcon />
-          {/snippet}
-          <span class="font-mono text-sm font-light">npm install @mate/svelte-dynamic...@{version.tag}</span>
-        </CopyButton>
-      </Card.Content>
-    </Card.Root>
-  </a> -->
   <Button
     onclick={() => {
       clipboard.copy(`npm install @mateothegreat/svelte-dynamic-component-engine@${version.tag}`);
@@ -157,11 +137,17 @@
       </div>
     </div>
     <Window>
-      <div bind:this={renderRef} id="dynamic-component-container" class="fade-in flex min-h-[500px] flex-col items-center justify-center gap-4 p-8 transition-all duration-300 ease-in-out">
-        {#if isLoading}
-          {@render loading()}
-        {/if}
-      </div>
+      <svelte:boundary
+        onerror={(e, reset) => {
+          console.error("<svelte:boundary> trapped an error:", e);
+          reset();
+        }}>
+        <div bind:this={renderRef} id="dynamic-component-container" class="fade-in flex min-h-[500px] flex-col items-center justify-center gap-4 p-8 transition-all duration-300 ease-in-out">
+          {#if isLoading}
+            {@render loading()}
+          {/if}
+        </div>
+      </svelte:boundary>
     </Window>
   </section>
   <div class="mr-1 flex justify-end gap-1">
