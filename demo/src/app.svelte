@@ -1,12 +1,14 @@
 <script lang="ts">
+  import { Badge } from "$lib/components/ui/badge";
   import { Button } from "$lib/components/ui/button";
   import { Toaster } from "$lib/components/ui/sonner";
-  import { BookHeart, Code, Github, HardDriveDownload, RefreshCcwDot } from "@lucide/svelte";
-  import { emojis, load, Logger, LogLevel, render, type Rendered } from "@mateothegreat/dynamic-component-engine";
+  import Window from "$lib/components/window.svelte";
+  import { BookHeart, BugPlay, Code, Github, HardDriveDownload, RefreshCcwDot, TerminalIcon } from "@lucide/svelte";
+  import { emojis, getVersion, load, Logger, LogLevel, render, type Rendered } from "@mateothegreat/dynamic-component-engine";
   import { onDestroy, onMount } from "svelte";
   import { toast } from "svelte-sonner";
   import type { SimpleProps } from "./components";
-
+  import { UseClipboard } from "./extras/hooks/use-clipboard.svelte";
   let renderRef: HTMLDivElement | undefined = $state(undefined);
   let sourceRef: HTMLPreElement | undefined = $state(undefined);
   let sourceText = $state("");
@@ -54,25 +56,26 @@
       /* More type safety!!! */
       console.log(component.props.name);
 
-      logger.info("createComponent", `${emojis.Checkmark} mounted dynamic component (${component.name}) at ${renderRef!.id}`);
       isLoading = false;
       loadTime = performance.now() - startTime;
-      toast.success(`Component "${component.name}" downloaded and rendered in ${loadTime.toFixed(2)}ms! 🎉`, {
-        duration: 5000
-      });
+
+      logger.info("createComponent", `${emojis.Checkmark} mounted dynamic component (${component.name}) at ${renderRef!.id}`);
+      toast.success(`Component "${component.name}" downloaded and rendered in ${loadTime.toFixed(2)}ms! 🎉`);
     } catch (error) {
       logger.error("createComponent", `${emojis.Error} failed to mount component`, error);
     }
   };
 
   onMount(async () => create());
-
   onDestroy(() => {
     if (component) {
       logger.info("onDestroy", `${emojis.Trash} destroying dynamic component (${component.name})`);
       component.destroy();
     }
   });
+
+  console.log(getVersion());
+  const clipboard = new UseClipboard();
 </script>
 
 {#snippet loading()}
@@ -82,26 +85,61 @@
   </div>
 {/snippet}
 
-<div class="border-b-3 flex flex-col gap-4 border-slate-800/50 bg-black/50 p-2 px-6 shadow-lg shadow-black/30">
-  <div class="flex items-center gap-5">
-    <header class="flex flex-1 flex-col gap-0.5">
-      <h1 class="text-2xl font-semibold text-indigo-400">Svelte Dynamic Component Engine</h1>
-      <p class="text-sm text-slate-500">This component was compiled and rendered at runtime in the browser using Svelte 5.</p>
-    </header>
-    <div class="m-4 flex flex-1 justify-end gap-2 text-xs text-indigo-400">
-      <div class="mb-3.5 mr-7 rounded-md border-2 bg-black px-2 py-1.5 text-sm text-slate-500">
-        running version: <a href="https://github.com/mateothegreat/svelte-dynamic-component-engine/tree/{import.meta.env.VITE_DYNAMIC_COMPONENT_ENGINE_VERSION}" class="cursor-pointer font-semibold text-green-400 hover:text-blue-400" target="_blank">
-          {import.meta.env.VITE_DYNAMIC_COMPONENT_ENGINE_VERSION}
-        </a>
-      </div>
-      <a href="https://github.com/mateothegreat/svelte-dynamic-component-engine" class="text-slate-400 hover:text-green-500" target="_blank">
-        <Github class="h-8 w-8" />
-      </a>
-      <a href="https://github.com/mateothegreat/svelte-dynamic-component-engine" class="text-fuchsia-400 hover:text-green-500" target="_blank">
-        <BookHeart class="h-8 w-8" />
-      </a>
+{#snippet pkg()}
+  {@const version = getVersion()}
+  <!-- <a href="https://github.com/mateothegreat/svelte-dynamic-component-engine/tree/{getVersion().tag}" target="_blank" class="group">
+    <Card.Root class="w-[300px] border-2 transition-all duration-400 ease-in-out hover:border-indigo-500 hover:bg-black/50 transition-all duration-400 ease-in-out">
+      <Card.Header>
+        <Card.Description class="text-xs text-slate-500">Version</Card.Description>
+        <Card.Title class="text-lg font-semibold tabular-nums text-indigo-400 transition-all duration-400 ease-in-out group-hover:text-green-500">{version.tag}</Card.Title>
+        <Card.Action>
+          <Badge variant="outline">
+            <CalendarFold />
+            {version.date.human}
+          </Badge>
+        </Card.Action>
+      </Card.Header>
+      <Card.Content>
+        <CopyButton text={`npm install @mate/svelte-dynamic...@{version.tag}`} size="sm" variant="outline">
+          {#snippet icon()}
+            <TerminalIcon />
+          {/snippet}
+          <span class="font-mono text-sm font-light">npm install @mate/svelte-dynamic...@{version.tag}</span>
+        </CopyButton>
+      </Card.Content>
+    </Card.Root>
+  </a> -->
+  <Button
+    onclick={() => {
+      clipboard.copy(`npm install @mateothegreat/svelte-dynamic-component-engine@${version.tag}`);
+      toast.success(`npm install @mateothegreat/svelte-dynamic-component-engine@${version.tag} 👏 copied to clipboard`);
+    }}
+    variant="default"
+    size="sm"
+    class="w-fit bg-zinc-900/80 border-slate-700 border hover:bg-black hover:border-slate-700">
+    <TerminalIcon class="text-slate-500" />
+    <span class="font-mono text-xs text-green-400">npm install @mateothegreat/svelte-dynamic-component-engine@{version.tag}</span>
+  </Button>
+{/snippet}
+
+<div class="flex items-center gap-2 border-b-3 border-slate-800/50 bg-black/50 p-4 shadow-lg shadow-black/30">
+  <header class="flex flex-1 flex-col gap-0.5">
+    <div class="flex items-center gap-2">
+      <div class="font-title text-gradient-animated">Svelte Dynamic Component Engine</div>
+      <Badge class="text-xs font-semibold bg-black text-fuchsia-400 border-slate-500/50 -mt-6 ml-1">
+        <BugPlay />
+        Live Demo
+      </Badge>
     </div>
-  </div>
+    <p class="text-sm text-slate-500 font-subtitle w-1/2">This demo shows how to use the Svelte Dynamic Component Engine to render a component at runtime in the browser using Svelte 5.</p>
+  </header>
+  <a href="https://github.com/mateothegreat/svelte-dynamic-component-engine" class="text-slate-400 hover:text-green-500" target="_blank">
+    <Github class="h-5 w-5" />
+  </a>
+  <a href="https://github.com/mateothegreat/svelte-dynamic-component-engine" class="text-fuchsia-400 hover:text-green-500" target="_blank">
+    <BookHeart class="h-5 w-5" />
+  </a>
+  {@render pkg()}
 </div>
 
 <main class="font-system container mx-auto flex flex-col gap-2 p-6">
@@ -118,11 +156,13 @@
         </Button>
       </div>
     </div>
-    <div bind:this={renderRef} id="dynamic-component-container" class="fade-in flex min-h-[500px] flex-col items-center justify-center gap-4 rounded-lg border-4 border-dashed border-slate-800 bg-black p-8 transition-all duration-300 ease-in-out">
-      {#if isLoading}
-        {@render loading()}
-      {/if}
-    </div>
+    <Window>
+      <div bind:this={renderRef} id="dynamic-component-container" class="fade-in flex min-h-[500px] flex-col items-center justify-center gap-4 p-8 transition-all duration-300 ease-in-out">
+        {#if isLoading}
+          {@render loading()}
+        {/if}
+      </div>
+    </Window>
   </section>
   <div class="mr-1 flex justify-end gap-1">
     <p class="font-medium text-slate-500">🚀 Load + Render:</p>

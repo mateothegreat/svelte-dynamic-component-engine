@@ -12,6 +12,7 @@
       To have warnings/errors of the Svelte compiler at the correct position,
       enable source maps by default.
      */
+    "noEmit": true,
     "sourceMap": true,
     "strict": true,
     "strictNullChecks": false,

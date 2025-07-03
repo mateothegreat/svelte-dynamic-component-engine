@@ -1,81 +1,160 @@
+@import url("https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Work+Sans:wght@300;400;500;600&display=swap");
+
 @import "tailwindcss";
 @import "tw-animate-css";
-@custom-variant dark (&:is(.dark *));
+
+@theme {
+  --font-title: "Manrope", system-ui, sans-serif;
+  --font-subtitle: "Work Sans", system-ui, sans-serif;
+  --font-system: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif;
+  --font-mono: "JetBrains Mono", "Fira Code", "SF Mono", monospace;
+
+  /* --spacing-xs: 2px;
+  --spacing-sm: 4px;
+  --spacing-md: 8px;
+  --spacing-lg: 16px;
+  --spacing-xl: 32px;
+  --spacing-2xl: 64px;
+  --spacing-3xl: 128px;
+
+  --radius-sm: 6px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  --radius-xl: 16px;
+  --radius-2xl: 24px; */
+
+  /* --breakpoint-xs: 320px;
+  --breakpoint-sm: 384px;
+  --breakpoint-md: 448px;
+  --breakpoint-lg: 512px;
+  --breakpoint-xl: 576px;
+  --breakpoint-2xl: 672px; */
+
+  /* --duration-fast: 150ms;
+  --duration-normal: 300ms;
+  --duration-slow: 500ms;
+
+  --shadow-brand: 0 4px 20px -2px oklch(var(--primary) / 0.25);
+  --shadow-glow: 0 0 30px oklch(var(--primary) / 0.15); */
+}
+
+/* ========================================
+   CUSTOM VARIANTS - NEW IN V4
+======================================== */
+
+/* Combined hover and focus states */
+@variant hocus (&:is(:hover, :focus));
+
+/* Group hover and focus states */
+@variant group-hocus (.group:is(:hover, :focus) &);
+
+/* Data attribute variants */
+@variant data-state-open (&[data-state="open"]);
+@variant data-state-closed (&[data-state="closed"]);
+@variant data-loading (&[data-loading="true"]);
+@variant data-selected (&[data-selected="true"]);
+
+/* Support queries */
+@variant supports-backdrop (&:is(@supports(backdrop-filter: blur(1px))));
+@variant supports-grid (&:is(@supports(display: grid)));
+
+/* Dark mode variant with improved selector */
+@variant dark (&:is(.dark *));
+
+/* Mobile-first responsive variants */
+@variant mobile-only (&:is(@media (max-width: 767px)));
+@variant tablet-only (&:is(@media (min-width: 768px) and (max-width: 1023px)));
+
+/* ========================================
+   COLOR SYSTEM WITH OKLCH
+======================================== */
 
 :root {
-  --radius: 0.625rem;
+  --radius: 0.75rem;
+
+  /* Light Theme - Enhanced for SaaS */
   --background: oklch(1 0 0);
-  --foreground: oklch(0.145 0 0);
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.145 0 0);
+  --foreground: oklch(0.09 0 0);
+  --card: oklch(0.99 0.002 41.116);
+  --card-foreground: oklch(0.09 0 0);
   --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.145 0 0);
-  --primary: oklch(0.205 0 0);
-  --primary-foreground: oklch(0.985 0 0);
-  --secondary: oklch(0.97 0 0);
+  --popover-foreground: oklch(0.09 0 0);
+
+  /* Brand Colors */
+  --primary: oklch(0.646 0.222 41.116);
+  /* Vibrant Orange */
+  --primary-foreground: oklch(1 0 0);
+  --primary-border: oklch(0.7 0.2 41.116);
+  --primary-hover-background: oklch(0.7 0.2 41.116);
+  --secondary: oklch(0.96 0.005 41.116);
+  /* Light Orange Tint */
   --secondary-foreground: oklch(0.205 0 0);
-  --muted: oklch(0.97 0 0);
-  --muted-foreground: oklch(0.556 0 0);
-  --accent: oklch(0.97 0 0);
-  --accent-foreground: oklch(0.205 0 0);
-  --destructive: oklch(0.577 0.245 27.325);
-  --border: oklch(0.922 0 0);
-  --input: oklch(0.922 0 0);
-  --ring: oklch(0.708 0 0);
-  --chart-1: oklch(0.646 0.222 41.116);
-  --chart-2: oklch(0.6 0.118 184.704);
-  --chart-3: oklch(0.398 0.07 227.392);
-  --chart-4: oklch(0.828 0.189 84.429);
-  --chart-5: oklch(0.769 0.188 70.08);
-  --sidebar: oklch(0.985 0 0);
-  --sidebar-foreground: oklch(0.145 0 0);
-  --sidebar-primary: oklch(0.205 0 0);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.97 0 0);
-  --sidebar-accent-foreground: oklch(0.205 0 0);
-  --sidebar-border: oklch(0.922 0 0);
-  --sidebar-ring: oklch(0.708 0 0);
+
+  /* Semantic Colors */
+  --success: oklch(0.6 0.17 162.48);
+  /* Green */
+  --warning: oklch(0.8 0.15 70.08);
+  /* Yellow */
+  --danger: oklch(0.65 0.25 27.325);
+  /* Red */
+  --info: oklch(0.7 0.15 264.376);
+  /* Blue */
+
+  /* UI Colors */
+  --muted: oklch(0.97 0.002 41.116);
+  --muted-foreground: oklch(0.556 0.006 41.116);
+  --accent: oklch(0.646 0.222 41.116);
+  --accent-foreground: oklch(1 0 0);
+  --destructive: oklch(0.65 0.25 27.325);
+  --border: oklch(0.94 0.005 41.116);
+  --input: oklch(0.94 0.005 41.116);
+  --ring: oklch(0.646 0.222 41.116);
+
+  /* Gradients */
+  --gradient-primary: linear-gradient(135deg, oklch(0.646 0.222 41.116), oklch(0.7 0.2 61.116));
+  --gradient-secondary: linear-gradient(135deg, oklch(0.96 0.005 41.116), oklch(0.99 0.002 41.116));
 }
 
 .dark {
-  --background: oklch(0.16 0.0017 196.99);
-  --foreground: oklch(0.985 0 0);
-  --card: oklch(0.205 0 0);
-  --card-foreground: oklch(0.985 0 0);
-  --popover: oklch(0.269 0 0);
-  --popover-foreground: oklch(0.985 0 0);
-  --primary: oklch(0.922 0 0);
-  --primary-foreground: oklch(0.205 0 0);
-  --secondary: oklch(0.269 0 0);
-  --secondary-foreground: oklch(0.985 0 0);
-  --muted: oklch(0.269 0 0);
-  --muted-foreground: oklch(0.708 0 0);
-  --accent: oklch(0.371 0 0);
-  --accent-foreground: oklch(0.985 0 0);
-  --destructive: oklch(0.704 0.191 22.216);
-  --border: oklch(1 0 0 / 10%);
-  --input: oklch(1 0 0 / 15%);
-  --ring: oklch(0.556 0 0);
-  --chart-1: oklch(0.488 0.243 264.376);
-  --chart-2: oklch(0.696 0.17 162.48);
-  --chart-3: oklch(0.769 0.188 70.08);
-  --chart-4: oklch(0.627 0.265 303.9);
-  --chart-5: oklch(0.645 0.246 16.439);
-  --sidebar: oklch(0.205 0 0);
-  --sidebar-foreground: oklch(0.985 0 0);
-  --sidebar-primary: oklch(0.488 0.243 264.376);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.269 0 0);
-  --sidebar-accent-foreground: oklch(0.985 0 0);
-  --sidebar-border: oklch(1 0 0 / 10%);
-  --sidebar-ring: oklch(0.439 0 0);
+  --background: oklch(0.18 0.0041 285.98);
+  --foreground: oklch(0.86 0.029 261.47);
+  --card: oklch(0.08 0.01 264.376);
+  --card-foreground: oklch(0.985 0.002 41.116);
+  --popover: oklch(0.1 0.01 264.376);
+  --popover-foreground: oklch(0.985 0.002 41.116);
+
+  --primary: oklch(0.74 0.0271 285.72);
+  --primary-foreground: oklch(0.05 0.005 264.376);
+  --primary-border: oklch(0.44 0.0281 240.68 / 0.52);
+  --primary-hover-background: oklch(0.23 0.0059 156.74 / 0.8);
+  --secondary: oklch(0.12 0.01 264.376);
+  --secondary-foreground: oklch(0.87 0.0076 260.73);
+
+  --success: oklch(0.65 0.15 162.48);
+  --warning: oklch(0.75 0.12 70.08);
+  --danger: oklch(0.7 0.2 27.325);
+  --info: oklch(0.75 0.12 264.376);
+
+  --muted: oklch(0.12 0.01 264.376);
+  --muted-foreground: oklch(0.708 0.008 264.376);
+  --muted-background: oklch(0.14 0.0022 286.11);
+  --accent: oklch(0.7 0.2 41.116);
+  --accent-foreground: oklch(0.67 0.0515 284.92);
+  --destructive: oklch(0.7 0.2 27.325);
+  --border: oklch(0.18 0.015 264.376);
+  --input: oklch(0.18 0.015 264.376);
+  --ring: oklch(0.7 0.2 41.116);
+
+  --gradient-primary: linear-gradient(135deg, oklch(0.52 0.2825 284.12), oklch(0.8 0.1424 222.86));
+  --gradient-secondary: linear-gradient(135deg, oklch(0.12 0.01 264.376), oklch(0.18 0.015 264.376));
 }
 
+/* ========================================
+   INLINE THEME FOR TAILWIND
+======================================== */
+
 @theme inline {
-  --radius-sm: calc(var(--radius) - 4px);
-  --radius-md: calc(var(--radius) - 2px);
-  --radius-lg: var(--radius);
-  --radius-xl: calc(var(--radius) + 4px);
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --color-card: var(--card);
@@ -84,30 +163,345 @@
   --color-popover-foreground: var(--popover-foreground);
   --color-primary: var(--primary);
   --color-primary-foreground: var(--primary-foreground);
+  --color-primary-border: var(--primary-border);
+  --color-primary-border-hover: var(--primary-border-hover);
+  --color-primary-hover-background: var(--primary-hover-background);
   --color-secondary: var(--secondary);
+  /* --color-secondary-foreground: var(--foreground); */
   --color-secondary-foreground: var(--secondary-foreground);
   --color-muted: var(--muted);
   --color-muted-foreground: var(--muted-foreground);
+  --color-muted-background: var(--muted-background);
   --color-accent: var(--accent);
   --color-accent-foreground: var(--accent-foreground);
   --color-destructive: var(--destructive);
   --color-border: var(--border);
   --color-input: var(--input);
   --color-ring: var(--ring);
-  --color-chart-1: var(--chart-1);
-  --color-chart-2: var(--chart-2);
-  --color-chart-3: var(--chart-3);
-  --color-chart-4: var(--chart-4);
-  --color-chart-5: var(--chart-5);
-  --color-sidebar: var(--sidebar);
-  --color-sidebar-foreground: var(--sidebar-foreground);
-  --color-sidebar-primary: var(--sidebar-primary);
-  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
-  --color-sidebar-accent: var(--sidebar-accent);
-  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
-  --color-sidebar-border: var(--sidebar-border);
-  --color-sidebar-ring: var(--sidebar-ring);
+  --color-success: var(--success);
+  --color-warning: var(--warning);
+  --color-danger: var(--danger);
+  --color-info: var(--info);
+  --color-primary-border: var(--primary-border);
+  --color-secondary-border: var(--secondary-border);
+  --color-accent-border: var(--accent-border);
+  --color-destructive-border: var(--destructive-border);
+  --color-info-border: var(--info-border);
+  --color-warning-border: var(--warning-border);
+  --color-success-border: var(--success-border);
+  --color-muted-border: var(--muted-border);
+  --color-card-border: var(--card-border);
 }
+
+/* ========================================
+   ENHANCED FONT-TITLE CLASS
+======================================== */
+
+.font-title {
+  font-family: var(--font-title);
+  font-weight: 700;
+  font-size: var(--text-xl);
+  /* Semibold */
+  letter-spacing: -0.025em;
+  line-height: 1.5;
+  font-optical-sizing: auto;
+  text-rendering: optimizeLegibility;
+  font-feature-settings:
+    "cv02",
+    /* Contextual alternates */ "cv03",
+    /* Stylistic alternates */ "cv04",
+    /* Alternative numerals */ "cv11";
+}
+
+.font-title-xs {
+  @apply font-title text-xs;
+}
+
+.font-title-sm {
+  @apply font-title text-sm;
+}
+
+.font-title-base {
+  @apply font-title text-base;
+}
+
+.font-title-lg {
+  @apply font-title text-lg;
+}
+
+.font-title-xl {
+  @apply font-title text-xl;
+}
+
+.font-title-2xl {
+  @apply font-title text-2xl;
+}
+
+.font-title-3xl {
+  @apply font-title text-3xl;
+}
+
+.font-title-4xl {
+  @apply font-title text-4xl;
+}
+
+.font-title-5xl {
+  @apply font-title text-5xl;
+}
+
+.font-title-6xl {
+  @apply font-title text-6xl;
+}
+
+/* Font Title Weight Variants */
+.font-title-medium {
+  @apply font-title;
+  font-weight: 500;
+}
+
+.font-title-bold {
+  @apply font-title;
+  font-weight: 700;
+}
+
+.font-title-extrabold {
+  @apply font-title;
+  font-weight: 800;
+}
+
+/* ========================================
+   ENHANCED FONT-SUBTITLE CLASS
+======================================== */
+
+.font-subtitle {
+  font-family: var(--font-subtitle);
+  font-weight: 500;
+  /* Medium weight */
+  letter-spacing: -0.01em;
+  /* Slightly tighter */
+  line-height: 1.4;
+  /* Good readability */
+  font-feature-settings: "kern";
+  /* Kerning for better spacing */
+}
+
+/* ========================================
+   CUSTOM UTILITY CLASSES
+======================================== */
+
+/* Button Utilities */
+@utility btn-primary {
+  @apply px-6 py-3 bg-primary text-primary-foreground rounded-lg font-medium transition-all duration-200 hover:scale-[1.02] hover:shadow-lg hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100;
+}
+
+@utility btn-secondary {
+  @apply px-6 py-3 bg-secondary text-secondary-foreground rounded-lg font-medium border border-border transition-all duration-200 hover:bg-secondary/80 hover:border-primary/20 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 active:scale-[0.98];
+}
+
+@utility btn-ghost {
+  @apply px-6 py-3 text-foreground rounded-lg font-medium transition-all duration-200 hover:bg-muted hover:text-primary focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 active:scale-[0.98];
+}
+
+/* Glass Morphism */
+@utility glass {
+  @apply bg-background/80 backdrop-blur-xl border border-border/50;
+}
+
+@utility glass-strong {
+  @apply bg-background/60 backdrop-blur-2xl border border-border/30;
+}
+
+/* Gradient Text */
+@utility text-gradient {
+  background: var(--gradient-primary);
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-size: 200% 200%;
+  animation: gradient-shift 3s ease infinite;
+}
+
+.text-gradient-animated {
+  background: var(--gradient-primary);
+  background-clip: text; /* ← Clips gradient to text shape */
+  -webkit-background-clip: text; /* ← Safari support */
+  -webkit-text-fill-color: transparent; /* ← Makes text transparent */
+  color: transparent; /* ← Fallback */
+  background-size: 200% 200%;
+  animation: rainbow-shift 5s ease infinite;
+  user-select: text; /* ← Keeps text selectable */
+}
+
+.text-gradient-rainbow {
+  background: linear-gradient(135deg, oklch(0.53 0.2816 287.7), /* Orange */ oklch(0.87 0.223 153.31), /* Yellow */ oklch(0.75 0.15 162.48), /* Green */ oklch(0.7 0.2 264.376) /* Blue */);
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: transparent;
+  background-size: 300% 300%;
+  animation: rainbow-shift 5s ease infinite;
+}
+
+@keyframes rainbow-shift {
+  0%,
+  100% {
+    background-position: 0% 50%;
+  }
+  25% {
+    background-position: 100% 0%;
+  }
+  50% {
+    background-position: 100% 100%;
+  }
+  75% {
+    background-position: 0% 100%;
+  }
+}
+
+/* Glowing Gradient */
+.text-gradient-glow {
+  background: linear-gradient(135deg, oklch(0.7 0.2 41.116), oklch(0.75 0.18 61.116));
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: transparent;
+  filter: drop-shadow(0 0 20px oklch(0.7 0.2 41.116 / 0.5));
+  animation: glow-pulse 2s ease-in-out infinite alternate;
+}
+
+@keyframes glow-pulse {
+  from {
+    filter: drop-shadow(0 0 20px oklch(0.7 0.2 41.116 / 0.3));
+  }
+  to {
+    filter: drop-shadow(0 0 30px oklch(0.7 0.2 41.116 / 0.8));
+  }
+}
+
+@utility shimmer {
+  position: relative;
+  overflow: hidden;
+}
+
+.shimmer::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, oklch(var(--primary) / 0.1), transparent);
+  animation: shimmer 2s infinite;
+}
+
+.shadow-glow {
+  box-shadow: 0 0 30px -5px oklch(0.76 0.1163 192.18 / 0.24);
+  transition: box-shadow 0.3s ease-in-out;
+  &:hover {
+    box-shadow: 0 0 30px -5px oklch(0.64 0.1 191.52 / 0.71);
+  }
+}
+
+
+/* Card Styles */
+/* @utility card-elevated {
+  @apply bg-card border border-border rounded-xl p-6 shadow-sm hover:shadow-md transition-all duration-300 hover:scale-[1.02] hover:border-primary/20;
+}
+
+@utility card-interactive {
+  @apply card-elevated cursor-pointer hover:shadow-lg hover:scale-[1.03] active:scale-[0.98];
+} */
+
+@keyframes shimmer {
+  0%,
+  100% {
+    transform: translateX(-100%);
+  }
+
+  50% {
+    transform: translateX(100%);
+  }
+}
+
+@keyframes gradient-shift {
+  0%,
+  100% {
+    background-position: 0% 50%;
+  }
+
+  50% {
+    background-position: 100% 50%;
+  }
+}
+
+@keyframes pulse-glow {
+  0%,
+  100% {
+    box-shadow: 0 0 20px oklch(var(--primary) / 0.3);
+  }
+
+  50% {
+    box-shadow: 0 0 40px oklch(var(--primary) / 0.6);
+  }
+}
+
+@keyframes float {
+  0%,
+  100% {
+    transform: translateY(0px);
+  }
+
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+/* ========================================
+   COMPONENT UTILITIES
+======================================== */
+
+/* Loading States */
+.loading-skeleton {
+  @apply bg-muted animate-pulse rounded;
+}
+
+.loading-dots::after {
+  content: "...";
+  animation: loading-dots 1.4s infinite;
+}
+
+@keyframes loading-dots {
+  0%,
+  20% {
+    content: ".";
+  }
+
+  40% {
+    content: "..";
+  }
+
+  60%,
+  100% {
+    content: "...";
+  }
+}
+
+/* Status Indicators */
+.status-online {
+  @apply w-2 h-2 bg-success rounded-full animate-pulse;
+}
+
+.status-offline {
+  @apply w-2 h-2 bg-muted-foreground rounded-full;
+}
+
+.status-busy {
+  @apply w-2 h-2 bg-warning rounded-full;
+}
+
+/* ========================================
+   BASE LAYER ENHANCEMENTS
+======================================== */
 
 @layer base {
   * {
@@ -115,6 +509,93 @@
   }
 
   body {
-    @apply bg-background text-foreground;
+    @apply bg-background text-foreground font-system antialiased;
+    font-feature-settings:
+      "rlig" 1,
+      "calt" 1;
+  }
+
+  ::-webkit-scrollbar {
+    @apply w-2;
+  }
+
+  ::-webkit-scrollbar-track {
+    @apply bg-muted;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    @apply bg-muted-foreground/50 rounded-full;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    @apply bg-muted-foreground/70;
+  }
+
+  ::selection {
+    @apply bg-accent/20 text-accent;
+  }
+
+  :focus-visible {
+    @apply outline-2 outline-ring outline-offset-2;
+  }
+}
+
+/* ========================================
+   RESPONSIVE CONTAINER QUERIES
+======================================== */
+
+/* Dashboard Grid - Responds to container size */
+/* @container (min-width: 320px) {
+  .dashboard-grid {
+    grid-template-columns: repeat(1, 1fr);
+  }
+}
+
+@container (min-width: 640px) {
+  .dashboard-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@container (min-width: 768px) {
+  .dashboard-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+@container (min-width: 1024px) {
+  .dashboard-grid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+/* Card Grid - Adaptive based on container */
+@container (min-width: 400px) {
+  .card-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@container (min-width: 800px) {
+  .card-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+*/
+
+/* ========================================
+   PRINT STYLES
+======================================== */
+
+@media print {
+  .font-title {
+    font-weight: 700;
+    color: black !important;
+  }
+
+  .glass,
+  .shimmer {
+    background: white !important;
+    backdrop-filter: none !important;
   }
 }
