@@ -1,5 +1,5 @@
 <script lang="ts">
-  import Button from "$lib/components/ui/button/button.svelte";
+  import { Button } from "$lib/components/ui/button";
   import { Toaster } from "$lib/components/ui/sonner";
   import { BookHeart, Code, Github, HardDriveDownload, RefreshCcwDot } from "@lucide/svelte";
   import { emojis, load, Logger, LogLevel, render, type Rendered } from "@mateothegreat/dynamic-component-engine";
@@ -7,8 +7,8 @@
   import { toast } from "svelte-sonner";
   import type { SimpleProps } from "./components";
 
-  let renderRef: HTMLDivElement;
-  let sourceRef: HTMLPreElement;
+  let renderRef: HTMLDivElement | undefined = $state(undefined);
+  let sourceRef: HTMLPreElement | undefined = $state(undefined);
   let sourceText = $state("");
   let isLoading = $state(true);
   let component: Rendered<SimpleProps>;
@@ -44,7 +44,7 @@
        */
       component = await render<SimpleProps>(fn, {
         source: source,
-        target: renderRef,
+        target: renderRef!,
         props: {
           /* Type safety! */
           name: "I'm but a simple component"
@@ -54,7 +54,7 @@
       /* More type safety!!! */
       console.log(component.props.name);
 
-      logger.info("createComponent", `${emojis.Checkmark} mounted dynamic component (${component.name}) at ${renderRef.id}`);
+      logger.info("createComponent", `${emojis.Checkmark} mounted dynamic component (${component.name}) at ${renderRef!.id}`);
       isLoading = false;
       loadTime = performance.now() - startTime;
       toast.success(`Component "${component.name}" downloaded and rendered in ${loadTime.toFixed(2)}ms! 🎉`, {
@@ -90,8 +90,8 @@
     </header>
     <div class="m-4 flex flex-1 justify-end gap-2 text-xs text-indigo-400">
       <div class="mb-3.5 mr-7 rounded-md border-2 bg-black px-2 py-1.5 text-sm text-slate-500">
-        running version: <a href="https://github.com/mateothegreat/svelte-dynamic-component-engine/tree/{window.___MATEOTHEGREAT_DYNAMIC_COMPONENT_ENGINE_VERSION__}" class="cursor-pointer font-semibold text-green-400 hover:text-blue-400" target="_blank">
-          {window.___MATEOTHEGREAT_DYNAMIC_COMPONENT_ENGINE_VERSION__}
+        running version: <a href="https://github.com/mateothegreat/svelte-dynamic-component-engine/tree/{import.meta.env.VITE_DYNAMIC_COMPONENT_ENGINE_VERSION}" class="cursor-pointer font-semibold text-green-400 hover:text-blue-400" target="_blank">
+          {import.meta.env.VITE_DYNAMIC_COMPONENT_ENGINE_VERSION}
         </a>
       </div>
       <a href="https://github.com/mateothegreat/svelte-dynamic-component-engine" class="text-slate-400 hover:text-green-500" target="_blank">

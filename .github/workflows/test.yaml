@@ -1,0 +1,65 @@
+name: ⚡ Test Runner
+on:
+  workflow_dispatch:
+  workflow_call:
+permissions:
+  contents: write
+jobs:
+  setup:
+    name: "🔧 Setup"
+    environment:
+      name: dev
+    runs-on: ubuntu-latest
+    steps:
+      - name: ⬇️ Check out repo
+        uses: actions/checkout@v4
+      - name: ⎔ Setup node
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: "package.json"
+          cache: "npm"
+          # cache-dependency-path: "package-lock.json"
+      - name: 🧹 Clean install for cross-platform compatibility
+        run: |
+          npm ci --legacy-peer-deps
+  test:
+    name: 🏃 Test
+    needs: setup
+    environment:
+      name: dev
+    runs-on: ubuntu-latest
+    steps:
+      - name: ⬇️ Check out repo
+        uses: actions/checkout@v4
+      - name: ⎔ Setup node (reuse cache from setup)
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: "package.json"
+          cache: "npm"
+      - name: Hydrate npm module cache
+        uses: actions/cache@v3
+        id: hydrate
+        with:
+          path: node_modules
+          key: ${{ runner.os }}-node-${{ hashFiles('package-lock.json') }}
+      - name: Install dependencies
+        if: steps.hydrate.outputs.cache-hit != 'true'
+        run: npm ci --legacy-peer-deps
+      - name: 🧪 Run Tests
+        run: npm run test:ci
+      - name: ⚙️ Generating coverage badges
+        run: |
+          npx --yes coverage-badges-cli \
+              --source tmp/coverage/coverage-summary.json \
+              --style plastic \
+              --type statements \
+              --iconWidth 190 \
+              --label "Test Coverage"  \
+              --output docs/assets/coverage-badge.svg
+      - name: ⬆️ Push badges branch
+        run: |
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git config --global user.name "github-actions[bot]"
+          git add docs/assets/coverage-badge.svg
+          git commit -m "chore: update coverage badge"
+          git push
