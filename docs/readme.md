@@ -2,6 +2,9 @@
 
 A powerful, secure, and flexible runtime component compiler for Svelte 5+ applications.
 
+> [!NOTE]
+> Live demo is available at [dynamic-component-engine.matthewdavis.io](https://dynamic-component-engine.matthewdavis.io)!
+
 ## ✨ Features
 
 - **Runtime Component Compilation**: Transform Svelte component strings into fully functional components on the fly.
