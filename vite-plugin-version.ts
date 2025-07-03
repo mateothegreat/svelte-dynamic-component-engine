@@ -31,6 +31,14 @@ export default function versionPlugin(): Plugin {
   return {
     name: "version-plugin",
     applyToEnvironment(env) {
+      console.log(execSync("git status").toString());
+      console.log(execSync("git tag -l").toString());
+      console.log(execSync("git fetch --all -v ").toString());
+      console.log(
+        execSync(
+          "git log --graph -10 --branches --remotes --tags  --format=format:'%Cgreen%h %Creset• %s (%cN, %cr) %Cred%d' --date-order"
+        ).toString()
+      );
       env.config.env.VERSION = JSON.stringify({
         date: {
           actual: new Date(execSync("git log -1 --format=%cd").toString()),
