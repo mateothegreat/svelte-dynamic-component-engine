@@ -1,22 +1,22 @@
 <script lang="ts">
+  import { emojis, load, Logger, LogLevel, render, type Rendered } from "@mateothegreat/dynamic-component-engine";
   import { onDestroy, onMount } from "svelte";
-  import { load, render, type Rendered } from "./lib/dynamic-components";
-  import { emojis, Logger, LogLevel } from "./lib/logger";
+  import type { SimpleProps } from "./components";
 
   let renderRef: HTMLDivElement;
   let sourceRef: HTMLPreElement;
-  let component: Rendered;
-  let isLoading = false;
+  let isLoading = $state(false);
+  let component: Rendered<SimpleProps>;
 
   const logger = new Logger("app.svelte", { level: LogLevel.DEBUG });
 
-  function recreate(): void {
+  const recreate = (): void => {
     logger.info("recreateComponent", `${emojis.Trash} destroying component (${component.name})`);
     component.destroy();
     create();
-  }
+  };
 
-  async function create() {
+  const create = async (): Promise<void> => {
     try {
       const source = await fetch("/entry.js").then((res) => res.text());
       sourceRef.textContent = source;
@@ -25,22 +25,30 @@
       const fn = await load(source);
       logger.info("createComponent", `${emojis.Checkmark} instantiated component function ("${fn.name}")`);
 
-      component = await render(fn, {
-        componentSource: source,
+      /**
+       * We pass type type to the render function to infer the type of the props for the
+       * component. This is useful because we can then use the props type for accessing the
+       * props of the renderedcomponent.
+       */
+      component = await render<SimpleProps>(fn, {
+        source: source,
         target: renderRef,
         props: {
+          /* Type safety! */
           name: "I'm but a simple component"
         }
       });
+
+      /* More type safety!!! */
+      console.log(component.props.name);
+
       logger.info("createComponent", `${emojis.Checkmark} mounted dynamic component (${component.name}) at ${renderRef.id}`);
     } catch (error) {
       logger.error("createComponent", `${emojis.Error} failed to mount component`, error);
     }
-  }
+  };
 
-  onMount(async () => {
-    create();
-  });
+  onMount(async () => create());
 
   onDestroy(() => {
     if (component) {
@@ -139,25 +147,6 @@
     background: #9ca3af;
     cursor: not-allowed;
     transform: none;
-  }
-
-  .validation-errors {
-    background: #fef2f2;
-    border: 1px solid #fecaca;
-    border-radius: 6px;
-    padding: 16px;
-    margin: 16px 0;
-  }
-
-  .validation-errors h3 {
-    color: #dc2626;
-    margin: 0 0 8px 0;
-  }
-
-  .validation-errors ul {
-    color: #b91c1c;
-    margin: 0;
-    padding-left: 20px;
   }
 
   .component-section h2 {

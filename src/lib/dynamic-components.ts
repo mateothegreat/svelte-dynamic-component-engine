@@ -1,40 +1,54 @@
+import type { mount } from "svelte";
 import { Logger, LogLevel } from "./logger";
 
+/**
+ * The logger for the dynamic-components module.
+ */
 const logger = new Logger("dynamic-components.ts", { level: LogLevel.DEBUG });
 
 /**
- * Result of rendering a component.
+ * The type of the component instance returned by the `mount` function.
+ *
+ * @template T The type of the props of the component.
  */
-export type Rendered = {
+export type RenderableComponent<T> = ReturnType<typeof mount>;
+
+/**
+ * The result of a rendered component.
+ *
+ * @template TProps The type of the props of the component.
+ */
+export type Rendered<TProps> = {
   /** The name of the component */
   name: string;
   /** The component instance */
-  component: Record<string, never>;
+  component: RenderableComponent<TProps>;
+  /** The props of the component */
+  props: TProps;
   /** Destroy the component */
   destroy: () => void;
 };
 
 /**
- * Configuration options for dynamic component loading and rendering.
+ * Configuration options for loading and rendering a component.
+ *
+ * @template TProps The type of the props of the component.
  */
-export interface RenderOptions {
-  /** The Svelte component source code as a string */
-  componentSource: string;
+export interface RenderOptions<TProps> {
+  /** The component source code as a string */
+  source: string;
   /** The target DOM element where the component should be mounted */
   target: HTMLElement;
-  /** Optional filename for the component (used in error messages) */
-  filename?: string;
   /** Optional props to pass to the component */
-  props?: Record<string, unknown>;
-  /** Whether to enable Svelte 5 runes (default: true) */
-  runes?: boolean;
+  props: TProps;
 }
 
 /**
- * Load a component from a string of Svelte component source code.
+ * Load a component from a string of compiled component source code as an esm module.
  *
- * @param source - The Svelte component source code as a string.
- * @returns The instantiated component function.
+ * @param {string} source The component source code as a string.
+ *
+ * @returns {Promise<Function>} The instantiated component function.
  */
 export const load = async (source: string): Promise<Function> => {
   const url = URL.createObjectURL(new Blob([source], { type: "application/javascript" }));
@@ -43,17 +57,19 @@ export const load = async (source: string): Promise<Function> => {
 };
 
 /**
- * Render a component to a DOM element.
+ * Render a component and mount it at the target element.
  *
- * @param fn - The component function to render.
- * @param options - The options for the component.
- * @returns The rendered component.
+ * @param {Function} fn The component function to render.
+ * @param {RenderOptions<TProps>} options The options for the component.
+ *
+ * @returns {Promise<Rendered<TProps>>} The rendered component.
  */
-export const render = async (fn: Function, options: RenderOptions): Promise<Rendered> => {
+export const render = async <TProps>(fn: Function, options: RenderOptions<TProps>): Promise<Rendered<TProps>> => {
   const component = fn(options.target, options.props);
   return {
     name: component.name,
     component: component,
+    props: options.props,
     destroy: () => {
       component.destroy();
     }
