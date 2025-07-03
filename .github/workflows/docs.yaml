@@ -55,8 +55,8 @@ jobs:
           private-key: ${{ secrets.CICD_APP_PRIVATE_KEY }}
       - name: 🔧 Commit and push diagrams
         run: |
-          git config --global user.name "svelte5-router[bot]"
-          git config --global user.email "svelte5-router[bot]@users.noreply.github.com"
+          git config --global user.name "svelte-dynamic-component-engine[bot]"
+          git config --global user.email "svelte-dynamic-component-engine[bot]@users.noreply.github.com"
           git remote set-url origin https://x-access-token:${{ steps.app.outputs.token }}@github.com/${{ github.repository }}.git
           git add .
           git commit -am "chore(docs): update diagrams"
