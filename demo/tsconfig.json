@@ -5,6 +5,7 @@
     "module": "ESNext",
     "paths": {
       "@mateothegreat/dynamic-component-engine": ["../src/index.ts"],
+      "$lib": ["./src/lib"],
       "$lib/*": ["./src/lib/*"],
       "$components/*": ["./src/lib/components/ui/*"]
     }
