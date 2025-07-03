@@ -80,6 +80,9 @@ const DEFAULT_COLORS = {
  * ```
  */
 export class Logger {
+    config;
+    colors;
+    context;
     /**
      * Creates a new Logger instance.
      *
@@ -87,17 +90,16 @@ export class Logger {
      * @param config - Configuration options for the logger
      */
     constructor(context = "Logger", config = {}) {
-        var _a, _b, _c, _d, _e, _f, _g;
         this.context = context;
         this.config = {
-            level: (_a = config.level) !== null && _a !== void 0 ? _a : LogLevel.INFO,
+            level: config.level ?? LogLevel.INFO,
             showTimestamps: config.showTimestamps,
-            showContext: (_b = config.showContext) !== null && _b !== void 0 ? _b : true,
-            colorize: (_c = config.colorize) !== null && _c !== void 0 ? _c : true,
-            detailed: (_d = config.detailed) !== null && _d !== void 0 ? _d : true,
-            maxDepth: (_e = config.maxDepth) !== null && _e !== void 0 ? _e : 3,
-            compact: (_f = config.compact) !== null && _f !== void 0 ? _f : false,
-            prefix: (_g = config.prefix) !== null && _g !== void 0 ? _g : ""
+            showContext: config.showContext ?? true,
+            colorize: config.colorize ?? true,
+            detailed: config.detailed ?? true,
+            maxDepth: config.maxDepth ?? 3,
+            compact: config.compact ?? false,
+            prefix: config.prefix ?? ""
         };
         this.colors = DEFAULT_COLORS;
     }
@@ -107,7 +109,7 @@ export class Logger {
      * @param config - Partial configuration to merge with existing settings
      */
     configure(config) {
-        this.config = Object.assign(Object.assign({}, this.config), config);
+        this.config = { ...this.config, ...config };
     }
     /**
      * Sets the current log level.
@@ -121,8 +123,7 @@ export class Logger {
      * Gets the current log level.
      */
     getLevel() {
-        var _a;
-        return (_a = this.config.level) !== null && _a !== void 0 ? _a : LogLevel.INFO;
+        return this.config.level ?? LogLevel.INFO;
     }
     /**
      * Logs an error message with optional data.
@@ -176,11 +177,10 @@ export class Logger {
      * @param options - Inspection options
      */
     inspect(obj, options = {}) {
-        var _a, _b, _c, _d, _e, _f;
         const inspectOptions = {
-            colorize: (_b = (_a = options.colorize) !== null && _a !== void 0 ? _a : this.config.colorize) !== null && _b !== void 0 ? _b : true,
-            compact: (_d = (_c = options.compact) !== null && _c !== void 0 ? _c : this.config.compact) !== null && _d !== void 0 ? _d : false,
-            maxDepth: (_f = (_e = options.maxDepth) !== null && _e !== void 0 ? _e : this.config.maxDepth) !== null && _f !== void 0 ? _f : 3
+            colorize: options.colorize ?? this.config.colorize ?? true,
+            compact: options.compact ?? this.config.compact ?? false,
+            maxDepth: options.maxDepth ?? this.config.maxDepth ?? 3
         };
         if (this.getLevel() < LogLevel.DEBUG)
             return;
@@ -339,13 +339,12 @@ export class Logger {
      * Logs additional data with proper formatting.
      */
     _logData(data) {
-        var _a, _b, _c;
         for (const item of data) {
             if (this.config.detailed && typeof item === "object" && item !== null) {
                 const inspected = this._inspect(item, {
-                    colorize: (_a = this.config.colorize) !== null && _a !== void 0 ? _a : true,
-                    compact: (_b = this.config.compact) !== null && _b !== void 0 ? _b : false,
-                    maxDepth: (_c = this.config.maxDepth) !== null && _c !== void 0 ? _c : 3
+                    colorize: this.config.colorize ?? true,
+                    compact: this.config.compact ?? false,
+                    maxDepth: this.config.maxDepth ?? 3
                 });
                 const error = this.getError(item);
                 console.log(error.string, ...error.styles);
@@ -373,7 +372,6 @@ export class Logger {
      * Browser-compatible object inspection similar to Node.js util.inspect.
      */
     _inspect(obj, options, currentDepth = 0) {
-        var _a;
         if (currentDepth >= options.maxDepth) {
             return options.colorize ? `%c[Object]` : "[Object]";
         }
@@ -394,7 +392,7 @@ export class Logger {
             case "boolean":
                 return options.colorize ? `%c${obj}` : String(obj);
             case "function":
-                const funcName = ((_a = obj.constructor) === null || _a === void 0 ? void 0 : _a.name) || "Function";
+                const funcName = obj.constructor?.name || "Function";
                 return options.colorize
                     ? `%c[${funcName}: ${obj.name || "anonymous"}]`
                     : `[${funcName}: ${obj.name || "anonymous"}]`;
