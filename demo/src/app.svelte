@@ -8,7 +8,6 @@
   import { toast } from "svelte-sonner";
   import type { SimpleProps } from "./components";
   import { clipboard } from "./extras/hooks/clipboard";
-  import { copyButton } from "./extras/hooks/copy-to-clipboard.svelte";
   import { getVersion } from "./version/browser";
 
   let renderRef: HTMLDivElement | undefined = $state(undefined);
