@@ -6,8 +6,9 @@
   import { emojis, load, Logger, LogLevel, render, type Rendered } from "@mateothegreat/dynamic-component-engine";
   import { onDestroy, onMount } from "svelte";
   import { toast } from "svelte-sonner";
-  import type { SimpleProps } from "./components";
+  import type { SimpleProps } from "../shared-components/simple/entry";
   import { clipboard } from "./extras/hooks/clipboard";
+  import { copyButton } from "./extras/hooks/copy-to-clipboard.svelte";
   import { getVersion } from "./version/browser";
 
   let renderRef: HTMLDivElement | undefined = $state(undefined);
