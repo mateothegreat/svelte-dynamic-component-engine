@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
-import type { Format } from "esbuild";
-import esbuild, { type BuildOptions } from "esbuild";
+import type { Format, BuildOptions } from "esbuild";
+import * as esbuild from "esbuild";
 import esbuildSvelte from "esbuild-svelte";
 import { glob } from "glob";
 import { sveltePreprocess } from "svelte-preprocess";
@@ -64,21 +64,104 @@ interface CompilerOptions {
   banner: string;
 }
 
+// Interface for component source input
+interface ComponentSource {
+  name: string;
+  source: string;
+  filename?: string;
+}
+
 /**
  * Bundle Svelte components using esbuild and esbuild-svelte plugin.
+ * Now accepts component source as strings instead of file paths.
  *
- * @param entry - Array of entry file paths or a single entry path.
+ * @param components - Array of component sources or entry file paths.
  * @param options - Compiler options containing build configuration.
  *
  * @returns The output files from the build process.
  */
 const bundleSvelte = async (
+  components: ComponentSource[] | string[] | string,
+  options: CompilerOptions
+): Promise<esbuild.OutputFile[] | undefined> => {
+  // Handle backward compatibility with file paths
+  if (typeof components === 'string' || (Array.isArray(components) && typeof components[0] === 'string')) {
+    return bundleSvelteFromFiles(components as string[] | string, options);
+  }
+
+  const componentArray = Array.isArray(components) ? components : [components];
+  
+  if (options.debug) {
+    console.log(`\nCompiling (${componentArray.length}) component${componentArray.length > 1 ? "s" : ""} from source...`);
+  }
+
+  // Create virtual file system plugin
+  const virtualFilePlugin: esbuild.Plugin = {
+    name: 'virtual-file',
+    setup(build) {
+      componentArray.forEach((component) => {
+        const comp = component as ComponentSource;
+        const filename = comp.filename || `${comp.name}.ts`;
+        build.onResolve({ filter: new RegExp(`^virtual:${comp.name}$`) }, () => ({
+          path: filename,
+          namespace: 'virtual'
+        }));
+        
+        build.onLoad({ filter: /.*/, namespace: 'virtual' }, (args) => {
+          const matchingComponent = componentArray.find((c) => {
+            const compSource = c as ComponentSource;
+            const compFilename = compSource.filename || `${compSource.name}.ts`;
+            return args.path === compFilename;
+          }) as ComponentSource;
+          
+          return {
+            contents: matchingComponent.source,
+            loader: filename.endsWith('.svelte') ? 'ts' : 'ts'
+          };
+        });
+      });
+    }
+  };
+
+  const buildOptions: BuildOptions = {
+    logLevel: options.debug ? "debug" : "info",
+    entryPoints: componentArray.map(comp => `virtual:${(comp as ComponentSource).name}`),
+    target: options.target,
+    format: options.format as Format,
+    splitting: false,
+    packages: "external",
+    banner: {
+      js: options.banner
+    },
+    bundle: true,
+    write: false, // Don't write to filesystem, return output files
+    plugins: [
+      virtualFilePlugin,
+      esbuildSvelte({
+        preprocess: sveltePreprocess(),
+        compilerOptions: {
+          css: "injected",
+          preserveComments: true,
+          preserveWhitespace: true
+        }
+      })
+    ]
+  };
+
+  const build = await esbuild.build(buildOptions);
+  return build.outputFiles;
+};
+
+/**
+ * Bundle Svelte components from file paths (backward compatibility).
+ */
+const bundleSvelteFromFiles = async (
   entry: string[] | string,
   options: CompilerOptions
 ): Promise<esbuild.OutputFile[] | undefined> => {
   if (options.debug) {
     console.log(
-      `\nCompiling (${Array.isArray(entry) ? entry.length : 1}) component${Array.isArray(entry) && entry.length > 1 ? "s" : ""}...`
+      `\nCompiling (${Array.isArray(entry) ? entry.length : 1}) component${Array.isArray(entry) && entry.length > 1 ? "s" : ""} from files...`
     );
   }
 
@@ -107,7 +190,6 @@ const bundleSvelte = async (
   };
 
   const build = await esbuild.build(buildOptions);
-
   return build.outputFiles;
 };
 
@@ -165,7 +247,7 @@ console.log(`Searching for components with "${argv.input}"...`);
 const entries = glob.sync(argv.input);
 
 entries.forEach((entry) => {
-  const t = template.replaceAll("NAME", "Tester");
+  const t = template.replace(/NAME/g, "Tester");
   console.log(entry, t);
 });
 
@@ -179,3 +261,37 @@ console.log(`\nCompiling components...`);
 const output = await bundleSvelte(entries, argv as CompilerOptions);
 
 console.log(`\nCompiled ${output?.length} components.`);
+
+// Export functions for programmatic use
+export { bundleSvelte, bundleSvelteFromFiles, type ComponentSource, type CompilerOptions };
+
+/**
+ * Convenience function to compile a single component from source string.
+ *
+ * @param name - Component name
+ * @param source - Component source code  
+ * @param options - Compiler options
+ * @returns The compiled output
+ */
+export const compileComponentFromSource = async (
+  name: string,
+  source: string,
+  options: Omit<CompilerOptions, 'input'>
+): Promise<esbuild.OutputFile[] | undefined> => {
+  const component: ComponentSource = { name, source };
+  return bundleSvelte([component], { ...options, input: '' });
+};
+
+/**
+ * Compile multiple components from source strings.
+ *
+ * @param components - Array of component sources
+ * @param options - Compiler options
+ * @returns The compiled outputs
+ */
+export const compileComponentsFromSource = async (
+  components: ComponentSource[],
+  options: Omit<CompilerOptions, 'input'>
+): Promise<esbuild.OutputFile[] | undefined> => {
+  return bundleSvelte(components, { ...options, input: '' });
+};
