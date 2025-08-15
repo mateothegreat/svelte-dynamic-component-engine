@@ -62,9 +62,16 @@ export class ComponentCompiler {
     const compileOptions: CompileOptions = {
       generate: "client",
       css: options.css ? "injected" : "external",
-      // If true, returns the modern version of the AST. Will become true by default in Svelte 6, and the option will be removed in Svelte 7.
+      // If true, returns the modern version of the AST. Will become true by default in Svelte 6,
+      //  and the option will be removed in Svelte 7.
       modernAst: true,
-      // Set to true to force the compiler into runes mode, even if there are no indications of runes usage. Set to false to force the compiler into ignoring runes, even if there are indications of runes usage. Set to undefined (the default) to infer runes mode from the component code. Is always true for JS/TS modules compiled with Svelte. Will be true by default in Svelte 6. Note that setting this to true in your svelte.config.js will force runes mode for your entire project, including components in node_modules, which is likely not what you want. If you're using Vite, consider using dynamicCompileOptions instead.
+      // Set to true to force the compiler into runes mode, even if there are no indications of runes usage.
+      // Set to false to force the compiler into ignoring runes, even if there are indications of runes usage.
+      // Set to undefined (the default) to infer runes mode from the component code.
+      // Is always true for JS/TS modules compiled with Svelte. Will be true by default in Svelte 6.
+      // Note that setting this to true in your svelte.config.js will force runes mode for your entire project,
+      // including components in node_modules, which is likely not what you want. If you're using Vite, consider
+      // using dynamicCompileOptions instead.
       runes: true,
       filename: options.name || "DynamicComponent.svelte"
     };
