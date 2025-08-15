@@ -11,6 +11,7 @@
     "skipLibCheck": true,
     "paths": {
       "@mateothegreat/dynamic-component-engine": ["../src/index.ts"],
+      "@mateothegreat/dynamic-component-engine/compiler": ["../src/compiler/index.ts"],
       "$lib": ["./src/lib"],
       "$lib/*": ["./src/lib/*"],
       "$components/*": ["./src/lib/components/ui/*"]

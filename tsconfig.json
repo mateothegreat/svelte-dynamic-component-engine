@@ -14,10 +14,7 @@
     "noUncheckedIndexedAccess": true,
     "noImplicitReturns": true,
     "noImplicitThis": true,
-    "skipLibCheck": true,
-    "paths": {
-      "@mateothegreat/dynamic-component-engine": ["./src/dynamic-components.ts"]
-    }
+    "skipLibCheck": true
   },
-  "include": ["./src/*"]
+  "include": ["./src/**/*.ts", "runtime-orig.ts"]
 }

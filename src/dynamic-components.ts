@@ -47,6 +47,7 @@ export interface RenderOptions<TProps> {
 export const load = async (source: string): Promise<Function> => {
   const url = URL.createObjectURL(new Blob([source], { type: "application/javascript" }));
   const module = await import(/* @vite-ignore */ url);
+  URL.revokeObjectURL(url);
   return module.default;
 };
 
