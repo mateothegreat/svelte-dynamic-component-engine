@@ -1,4 +1,4 @@
-import type { Version } from "./version/types";
+import type { Version } from "./lib/version/types";
 
 declare global {
   const __VERSION__: Version | undefined;

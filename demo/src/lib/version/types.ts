@@ -1,4 +1,4 @@
-import type { VersionLocation } from "../../../src/vite-plugin-version";
+import type { VersionLocation } from "./vite-plugin-version";
 
 export type Version = {
   location: VersionLocation;

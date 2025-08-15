@@ -1,9 +1,7 @@
-// I'm compiled from entry.ts which imports simple.svelte using esbuild-svelte.
-
-// shared-components/simple/entry.ts
+// demo/shared-components/simple/entry.ts
 import { mount, unmount } from "svelte";
 
-// shared-components/simple/simple.svelte
+// demo/shared-components/simple/simple.svelte
 import "svelte/internal/disclose-version";
 import * as $ from "svelte/internal/client";
 var on_click = (_, testState) => $.update(testState);
@@ -59,7 +57,7 @@ function Simple($$anchor, $$props) {
 }
 $.delegate(["click"]);
 
-// shared-components/simple/entry.ts
+// demo/shared-components/simple/entry.ts
 var factory = (target, props) => {
   const component = mount(Simple, {
     target,

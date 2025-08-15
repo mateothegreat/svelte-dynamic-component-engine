@@ -5,8 +5,6 @@ import type { Attachment } from "svelte/attachments";
 export type ClipboardStatus = "idle" | "success" | "failure";
 
 export interface ClipboardOptions {
-  /** The text to copy to clipboard */
-  text: string;
   /** The time in milliseconds before the status resets to idle (default: 2000) */
   delay?: number;
   /** Callback when copy succeeds */
@@ -32,9 +30,8 @@ interface ClipboardState {
  * </script>
  *
  * <button
- *   {@attach clipboard({
- *     text: 'Hello, World!',
- *     onStatusChange: (s) => status = s
+ *   {@attach clipboard('Hello, World!', {
+ *     onStatusChange: (s) => status = s // Optional
  *   })}
  * >
  *   {status === 'success' ? '✓ Copied!' :
@@ -43,7 +40,7 @@ interface ClipboardState {
  * </button>
  * ```
  */
-export function clipboard(options: ClipboardOptions): Attachment<HTMLElement> {
+export const clipboard = (value: any, options: ClipboardOptions): Attachment<HTMLElement> => {
   return (node: HTMLElement) => {
     const state: ClipboardState = {
       status: "idle",
@@ -82,9 +79,9 @@ export function clipboard(options: ClipboardOptions): Attachment<HTMLElement> {
       }
 
       try {
-        await navigator.clipboard.writeText(options.text);
+        await navigator.clipboard.writeText(value);
         updateStatus("success");
-        options.onSuccess?.(options.text);
+        options.onSuccess?.(value);
         resetStatus();
       } catch (error) {
         const err = error instanceof Error ? error : new Error("Failed to copy to clipboard");
@@ -115,55 +112,4 @@ export function clipboard(options: ClipboardOptions): Attachment<HTMLElement> {
       node.removeAttribute("aria-label");
     };
   };
-}
-
-/**
- * Creates a clipboard context with shared state
- * Useful for managing multiple clipboard actions with shared status
- *
- * @example
- * ```svelte
- * <script lang="ts">
- *   import { createClipboardContext } from '$lib/actions/clipboard';
- *
- *   const clipboard = createClipboardContext();
- * </script>
- *
- * <button {@attach clipboard.action({ text: 'Copy me!' })}>
- *   {clipboard.status === 'success' ? 'Copied!' : 'Copy'}
- * </button>
- * ```
- */
-export function createClipboardContext(defaultDelay = 2000) {
-  let status = $state<ClipboardStatus>("idle");
-  let lastCopiedText = $state<string | null>(null);
-
-  const action = (node: HTMLElement, options: Omit<ClipboardOptions, "onStatusChange">) => {
-    return clipboard(node, {
-      ...options,
-      delay: options.delay ?? defaultDelay,
-      onStatusChange: (s) => {
-        status = s;
-        if (s === "success") {
-          lastCopiedText = options.text;
-        }
-      },
-      onSuccess: (text) => {
-        options.onSuccess?.(text);
-      },
-      onFailure: (error) => {
-        options.onFailure?.(error);
-      }
-    });
-  };
-
-  return {
-    get status() {
-      return status;
-    },
-    get lastCopiedText() {
-      return lastCopiedText;
-    },
-    action
-  };
-}
+};

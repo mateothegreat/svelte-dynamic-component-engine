@@ -1,17 +1,21 @@
 {
   "name": "@mateothegreat/dynamic-component-engine",
   "version": "0.0.1",
-  "type": "module",
-  "moduleResolution": "bundler",
   "description": "A powerful, secure, and flexible runtime component compiler for Svelte 5+ applications.",
   "author": "Matthew Davis <matthew@matthewdavis.io>",
   "license": "MIT",
+  "type": "module",
+  "moduleResolution": "bundler",
+  "types": "./index.d.ts",
   "exports": {
     ".": {
-      "import": "./src/index.ts",
-      "types": "./src/index.ts"
+      "types": "./index.d.ts",
+      "import": "./index.js"
     }
   },
+  "files": [
+    "./**/*"
+  ],
   "scripts": {
     "dev": "vite",
     "build": "vite build",
@@ -27,6 +31,7 @@
     "@testing-library/svelte": "^5.2.8",
     "@tsconfig/svelte": "^5.0.4",
     "@types/node": "^24.0.10",
+    "@types/yargs": "^17.0.33",
     "@vitest/coverage-v8": "^3.2.4",
     "@vitest/ui": "^3.2.4",
     "esbuild-plugin-cache": "^0.2.10",
@@ -41,7 +46,8 @@
     "typescript": "~5.8.3",
     "vite": "^6.3.5",
     "vite-tsconfig-paths": "^5.1.4",
-    "vitest": "^3.2.4"
+    "vitest": "^3.2.4",
+    "yargs": "^18.0.0"
   },
   "peerDependencies": {
     "svelte": "^5.0.0"

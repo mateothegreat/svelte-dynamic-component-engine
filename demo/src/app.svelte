@@ -3,17 +3,17 @@
   import { Toaster } from "$lib/components/ui/sonner";
   import Window from "$lib/components/window.svelte";
   import { BookHeart, Code, Github, HardDriveDownload, RefreshCcwDot, TerminalIcon } from "@lucide/svelte";
-  import { emojis, load, Logger, LogLevel, render, type Rendered } from "@mateothegreat/dynamic-component-engine";
+  import { load, render, type Rendered } from "@mateothegreat/dynamic-component-engine";
   import { onDestroy, onMount } from "svelte";
   import { toast } from "svelte-sonner";
-  import type { SimpleProps } from "../shared-components/simple/entry";
-  import { clipboard } from "./extras/hooks/clipboard";
-  import { copyButton } from "./extras/hooks/copy-to-clipboard.svelte";
-  import { getVersion } from "./version/browser";
+  import type { SimpleProps } from "../../src/entry";
+  import { clipboard } from "./lib/clipboard";
+  import { emojis, Logger, LogLevel } from "./lib/logger";
+  import { getVersion } from "./lib/version/browser";
 
   let renderRef: HTMLDivElement | undefined = $state(undefined);
   let sourceRef: HTMLPreElement | undefined = $state(undefined);
-  let sourceText = $state("");
+  let code = $state("");
   let isLoading = $state(true);
   let component: Rendered<SimpleProps>;
   let loadTime = $state(0);
@@ -33,7 +33,7 @@
     isLoading = true;
     try {
       const source = await fetch("/entry.js").then((res) => res.text());
-      sourceText = source;
+      code = source;
       logger.info("createComponent", `⬇️ downloaded component source code (${source.length} bytes)`);
 
       const fn = await load(source);
@@ -86,8 +86,7 @@
 {#snippet pkg()}
   {@const version = getVersion()}
   <Button
-    {@attach clipboard({
-      text: `npm install @mateothegreat/svelte-dynamic-component-engine@${version.tag}`,
+    {@attach clipboard(`npm install @mateothegreat/svelte-dynamic-component-engine@${version.tag}`, {
       onStatusChange: (status) => console.log(status),
       onSuccess: () => {
         toast.success(`npm install @mateothegreat/svelte-dynamic-component-engine@${version.tag} copied to clipboard! 📋`);
@@ -154,17 +153,12 @@
         Source Code
       </div>
       <Button
-        {@attach copyButton({
-          getText: () => sourceText,
-          successMessage: "Source code copied to clipboard! 📋",
-          classes: {
-            success: "bg-green-500 border-green-400 text-white",
-            copying: "opacity-50 cursor-wait"
-          }
+        {@attach clipboard(code, {
+          onSuccess: () => toast.success("Source code copied to clipboard! 📋")
         })}
         variant="outline"
         size="sm"
-        disabled={isLoading || !sourceText}
+        disabled={isLoading || !code}
         class="text-xs">
         Copy Source
       </Button>
@@ -173,7 +167,7 @@
       {#if isLoading}
         {@render loading()}
       {:else}
-        <pre bind:this={sourceRef} class="overflow-x-auto whitespace-pre-wrap break-words text-left font-mono text-[11px]">{sourceText}</pre>
+        <pre bind:this={sourceRef} class="overflow-x-auto whitespace-pre-wrap break-words text-left font-mono text-[11px]">{code}</pre>
       {/if}
     </div>
   </section>

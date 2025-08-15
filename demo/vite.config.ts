@@ -4,7 +4,7 @@ import tailwindcss from "@tailwindcss/vite";
 import path from "path";
 import { defineConfig } from "vite";
 import tsconfigPaths from "vite-tsconfig-paths";
-import { versionPlugin } from "../src/vite-plugin-version";
+import { versionPlugin } from "./src/lib/version/vite-plugin-version";
 
 export default defineConfig({
   logLevel: "info",

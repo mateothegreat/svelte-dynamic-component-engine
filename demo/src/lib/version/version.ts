@@ -1,7 +1,7 @@
 import fs from "node:fs";
-import type { VersionConfig } from "../../../src/vite-plugin-version";
 import { git } from "./git";
 import type { Version } from "./types";
+import type { VersionConfig } from "./vite-plugin-version";
 
 export const ago = (date: Date, locale = "en"): string => {
   const rtf = new Intl.RelativeTimeFormat(locale, { numeric: "auto" });

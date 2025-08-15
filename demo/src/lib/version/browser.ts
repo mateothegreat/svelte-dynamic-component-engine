@@ -1,5 +1,5 @@
-import type { VersionConfig } from "../../../src/vite-plugin-version";
 import type { Version } from "./types";
+import type { VersionConfig } from "./vite-plugin-version";
 
 declare const __VERSION__: Version | undefined;
 

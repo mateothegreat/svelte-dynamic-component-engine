@@ -2,16 +2,8 @@
   "compilerOptions": {
     "module": "esnext",
     "moduleResolution": "bundler",
-    "target": "es2023",
-    /**
-      Svelte Preprocess cannot figure out whether you have a value or a type, so tell TypeScript
-      to enforce using `import type` instead of `import` for Types.
-     */
+    "target": "es2022",
     "verbatimModuleSyntax": true,
-    /**
-      To have warnings/errors of the Svelte compiler at the correct position,
-      enable source maps by default.
-     */
     "sourceMap": true,
     "strict": true,
     "strictNullChecks": false,
@@ -24,6 +16,5 @@
       "$components/*": ["./src/lib/components/ui/*"]
     }
   },
-  "include": ["./src/**/*.ts", "./src/**/*.js", "./src/**/*.svelte", "shared-components/simple.svelte", "shared-components/simple/entry.ts", "shared-components/entry.ts"],
-  "exclude": ["src/lib/components/ui"]
+  "include": ["./src/**/*.ts", "./src/**/*.svelte", "./src/**/*.svelte.ts"]
 }

@@ -1,12 +1,6 @@
-import { setVersion } from "../demo/src/version/version";
+import { setVersion } from "./version";
 
-export type VersionLocation =
-  | "git-tag"
-  | "git-commit"
-  | "git-branch"
-  | "git-dirty"
-  | "git-date"
-  | "package.json";
+export type VersionLocation = "git-tag" | "git-commit" | "git-branch" | "git-dirty" | "git-date" | "package.json";
 
 export interface VersionConfig {
   debug?: boolean;

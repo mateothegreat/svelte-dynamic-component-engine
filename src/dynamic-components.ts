@@ -1,10 +1,4 @@
 import type { mount } from "svelte";
-import { Logger, LogLevel } from "./logger";
-
-/**
- * The logger for the dynamic-components module.
- */
-const logger = new Logger("dynamic-components.ts", { level: LogLevel.DEBUG });
 
 /**
  * The type of the component instance returned by the `mount` function.
