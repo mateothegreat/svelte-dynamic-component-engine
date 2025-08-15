@@ -1,14 +1,24 @@
 <script lang="ts">
-  import { ComponentCompiler, type CompiledComponent } from "@mateothegreat/dynamic-component-engine";
+  import { ComponentCompiler, sharedStore, type CompiledComponent } from "@mateothegreat/dynamic-component-engine";
   import { onMount } from "svelte";
 
   let renderRef: HTMLDivElement | undefined = $state(undefined);
 
   // This is to test that the component is updated when the count changes.
   let count = $state(0);
+
+  // Initialize shared store with initial count value.
+  sharedStore.set("count", count);
+
   setInterval(() => {
     count++;
+    sharedStore.set("count", count); // Update via the shared store
   }, 1000);
+
+  // Create a reactive reference that stays in sync with the store
+  $effect(() => {
+    sharedStore.set("count", count);
+  });
 
   let instances: CompiledComponent[] = $state([]);
 
@@ -16,15 +26,29 @@
     const source = `
     <script>
       import { onDestroy } from "svelte";
+
+      let { data } = $props();
       
-      let { count = $bindable(0), data } = $props();
+      // Access shared reactive state directly from the store.
+      let count = $state(sharedStore.get('count') || 0);
+      
+      // Subscribe to store changes and update local state. 
+      const unsubscribe = sharedStore.subscribe('count', (newCount) => {
+        count = newCount;
+      });
       
       $effect(() => {
         console.log("count changed to:", count);
       });
 
+      const incrementCount = () => {
+        const currentCount = sharedStore.get('count') || 0;
+        sharedStore.set('count', currentCount + 1);
+      };
+
       onDestroy(() => {
         console.log("I've been destroyed");
+        unsubscribe();
       });
     <\/script>
 
@@ -32,9 +56,7 @@
       <p>data: <span class="text-pink-500">{data}</span></p>
       <p>count: <span class="text-pink-500">{count}</span></p>
 
-      <button onclick={() => {
-          count++;
-      }} class="mt-4 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600">
+      <button onclick={incrementCount} class="mt-4 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600">
         Increment
       <\/button>
     <\/div>`;
@@ -43,13 +65,13 @@
       source,
       renderRef!,
       {
-        count,
         data: "passed at compile time"
       },
       {
         css: true,
         sourcemap: true,
-        cache: false
+        cache: false,
+        sharedStore: sharedStore
       }
     );
 

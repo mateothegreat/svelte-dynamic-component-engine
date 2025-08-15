@@ -1,4 +1,8 @@
 import { compile, type CompileOptions, type CompileResult } from "svelte/compiler";
+import { SharedRuneStore } from "../shared-rune-store.js";
+
+// Re-export for convenience
+export { SharedRuneStore, sharedStore } from "../shared-rune-store.js";
 
 export interface CompiledComponent {
   component: any;
@@ -21,6 +25,7 @@ export interface CompilerOptions {
   onDestroy?: () => void;
   onError?: (error: Error) => void;
   useSandbox?: boolean; // Optional: render inside iframe for isolation
+  sharedStore?: SharedRuneStore; // Optional: shared rune store for reactive state
 }
 
 /**
@@ -85,16 +90,21 @@ export class ComponentCompiler {
    *
    * @param code - Compiled JS code.
    * @param componentName - Name of the component.
+   * @param sharedStore - Optional shared rune store for reactive state.
    *
    * @returns Transformed JS code as string.
    */
-  private static transformCompiledCode(code: string, componentName: string): string {
+  private static transformCompiledCode(code: string, componentName: string, sharedStore?: SharedRuneStore): string {
     const lines = code.split("\n");
 
     /**
      * Inject mount and unmount imports so that the wrapper can do it's job.
      */
     lines.unshift(`import { mount, unmount } from "svelte";`);
+
+    /**
+     * If a shared store is provided, inject it as a parameter in the factory function.
+     */
 
     /**
      * Replace default export with named component so that when the component is rendered,
@@ -114,7 +124,20 @@ export class ComponentCompiler {
      * 2. Mount the component into the target element.
      * 3. Return the component and the destroy function.
      */
-    lines.push(`
+    const factoryCode = sharedStore 
+      ? `
+      const factory = (target, props, sharedStore) => {
+        // Make sharedStore globally available within this module
+        globalThis.sharedStore = sharedStore;
+        const component = mount(${componentName}, { target, props });
+        return {
+          component,
+          destroy: () => unmount(component)
+        };
+      };
+      export { factory as default };
+      `
+      : `
       const factory = (target, props) => {
         const component = mount(${componentName}, { target, props });
         return {
@@ -123,7 +146,9 @@ export class ComponentCompiler {
         };
       };
       export { factory as default };
-    `);
+      `;
+    
+    lines.push(factoryCode);
 
     return lines.join("\n");
   }
@@ -163,12 +188,12 @@ export class ComponentCompiler {
        * ```
        */
       const componentName = options.name?.replace(/\.(svelte|js)$/, "") || "DynamicComponent";
-      const transformedCode = this.transformCompiledCode(compiled.js.code, componentName);
+      const transformedCode = this.transformCompiledCode(compiled.js.code, componentName, options.sharedStore);
 
       fn = await this.loadModule(transformedCode);
       this.componentCache.set(cacheKey, fn);
 
-      const instance = fn(target, props);
+      const instance = options.sharedStore ? fn(target, props, options.sharedStore) : fn(target, props);
 
       const component = {
         component: instance.component,

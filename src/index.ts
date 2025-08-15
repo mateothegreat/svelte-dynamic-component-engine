@@ -2,3 +2,4 @@
 export * from "./compiler";
 export * from "./dynamic-components";
 export * from "./loader";
+export * from "./shared-rune-store";
