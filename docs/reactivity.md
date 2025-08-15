@@ -1,6 +1,6 @@
-# ([Solutions for Rune-Based Reactive State Sharing
+# Rune-Based Reactive State Sharing Problem Statement
 
-The fundamental problem is that Svelte 5 runes create reactive references that lose their reactivity when serialized across compilation boundaries.
+The problem arises when Svelte 5 runes create reactive references that lose their reactivity when serialized across compilation boundaries.
 
 ## The Core Issue
 
