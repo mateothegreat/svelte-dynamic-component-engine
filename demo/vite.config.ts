@@ -4,10 +4,14 @@ import tailwindcss from "@tailwindcss/vite";
 import path from "path";
 import { defineConfig } from "vite";
 import tsconfigPaths from "vite-tsconfig-paths";
-import versionPlugin from "../vite-plugin-version";
+import { versionPlugin } from "./src/lib/version/vite-plugin-version";
 
 export default defineConfig({
+  logLevel: "info",
   plugins: [
+    versionPlugin({
+      locations: ["package.json"]
+    }),
     tsconfigPaths(),
     svelte(),
     svelteInspector({
@@ -15,20 +19,11 @@ export default defineConfig({
       showToggleButton: "always",
       toggleButtonPos: "bottom-left"
     }),
-    versionPlugin(),
-    /**
-     * This sets it so that when you change a file, the whole page will reload
-     * rather than hmr only reloading the changes.
-     */
-    // {
-    //   name: "full-reload",
-    //   handleHotUpdate({ server }) {
-    //     server.ws.send({ type: "full-reload" });
-    //     return [];
-    //   }
-    // },
     tailwindcss()
   ],
+  build: {
+    reportCompressedSize: true
+  },
   resolve: {
     alias: {
       "@mateothegreat/dynamic-component-engine": path.resolve(__dirname, "../src/index.ts"),
