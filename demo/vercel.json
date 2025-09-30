@@ -1,0 +1,12 @@
+{
+  "github": {
+    "enabled": true
+  },
+  "routes": [
+    {
+      "dest": "/",
+      "src": "/[^.]+",
+      "status": 200
+    }
+  ]
+}
